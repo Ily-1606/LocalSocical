@@ -15,6 +15,7 @@
 
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <link rel="stylesheet" href="/assets/css/type.css">
+     <link rel="stylesheet" href="/assets/toastr/css/toastr.min.css">
 
 </head>
 
@@ -57,12 +58,6 @@
           <img src="/assets/img/chat.gif" class="auto_reponsive">
           <img src="/assets/img/a.png" class="auto_reponsive"></p>
      </div>
-
-
-
-
-
-
      <section class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
                <div class="modal-content modal-popup">
@@ -154,6 +149,7 @@
      <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
 
      <script src="/assets/js/custom.js"></script>
+     <script src="/assets/toastr/js/toastr.min.js"></script>
      <script type='text/javascript'>
           var pictureSrc = "/assets/img/br.png";
           var pictureWidth = 25; //
@@ -262,7 +258,27 @@
 
           window.setInterval('flakeFall();', 100);
      </script>
-
+     <script>
+          $(function() {
+               $("#submit_form").click(function() {
+                    $.ajax({
+                         url: $(this).attr("action"),
+                         method: $(this).attr("method"),
+                         success: function(e) {
+                              e = JSON.parse(e);
+                              if (e.status) {
+                                   toastr.success(e.msg);
+                              } else
+                                   toastr.error(e.msg);
+                         },
+                         error: function(e) {
+                              console.info(e);
+                              toastr.error("Có lỗi khi kết nối với máy chủ!");
+                         }
+                    })
+               })
+          })
+     </script>
 
 
 </body>
