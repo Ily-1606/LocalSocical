@@ -1,9 +1,17 @@
+<?php
+session_start();
+if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
+     header("Location: /");
+     die();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
-     <title>Ứng dụng chat</title>
+     <title>LocalSocial</title>
 
      <meta charset="UTF-8">
      <meta http-equiv="X-UA-Compatible" content="IE=Edge">
@@ -273,9 +281,9 @@
                               e = JSON.parse(e);
                               if (e.status) {
                                    toastr.success(e.msg);
-                                   setTimeout(function(e){
-                                   window.location.href = "/";
-                                   },3000);
+                                   setTimeout(function(e) {
+                                        window.location.href = "/";
+                                   }, 3000);
                               } else
                                    toastr.error(e.msg);
                          },
