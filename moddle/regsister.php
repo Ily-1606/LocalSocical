@@ -51,6 +51,10 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["re_pass
         if ($result) {
             $data["status"] = true;
             $data["msg"] = "Regsister completed!";
+            $result = mysqli_query($conn, "SELECT * FROM `table_account` WHERE email = '$email' LIMIT 1");
+            $result = mysqli_fetch_assoc($result);
+            $_SESSION["id"] = $result["id"];
+            $_SESSION["email"] = $result["email"];
         } else {
             $data["status"] = false;
             $data["msg"] = "Regsister failed, please try againt!";
