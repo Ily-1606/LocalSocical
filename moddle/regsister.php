@@ -35,7 +35,15 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["re_pass
             die;
         }
         if ($gender != 1 && $gender != 2) {
-            echo "Gender wrong!";
+            $data["status"] = false;
+            $data["msg"] = "Gender wrong!";
+            echo json_encode($data);
+            die;
+        }
+        $result = mysqli_query($conn, "SELECT id FROM table_account WHERE email = '$email' LIMIT 1");
+        if (mysqli_num_rows($result)) {
+            $data["status"] = false;
+            $data["msg"] = "Email is exist!";
             echo json_encode($data);
             die;
         }
