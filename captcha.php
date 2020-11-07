@@ -1,14 +1,17 @@
 <?php
 session_start();
-$code = rand(10000, 99999);
-$_SESSION['code'] = $code;
-$im = imagecreatetruecolor(87, 25);
-$bg = imagecolorallocate($im, 255, 255, 255);
-$fg = imagecolorallocate($im, 138, 200, 67);
-imagefill($im, 0, 0, $bg);
-imagestring($im, 5, 5, 5,  $code, $fg);
-header("Cache-Control: no-cache, must-revalidate");
-header('Content-type: image/png');
-imagepng($im);
-imagedestroy($im);
-?>
+$string = md5(time());
+$nt1 = mt_rand(1,10);
+$nt2 = mt_rand(1,10);
+$nt_sub = "$nt1 + $nt2";
+
+$_SESSION['captcha'] = $nt1 + $nt2;
+
+$img = imagecreate(150,50);
+$background = imagecolorallocate($img, 0,0,0);
+$text_color = imagecolorallocate($img, 255,255,255);
+imagestring($img, 4,40,15, $nt_sub, $text_color);
+
+header("Content-type: image/png");
+imagepng($img);
+imagedestroy($img);

@@ -85,7 +85,7 @@
                                         </ul>
                                         <div class="tab-content">
                                              <div role="tabpanel" class="tab-pane fade in active" id="sign_up">
-                                                  <form action="#" method="post">
+                                                  <form action="/moddle/regsister.php" method="post" class="submit_form">
                                                        <input type="text" class="form-control" name="Firstname" placeholder="First Name" required>
                                                        <input type="text" class="form-control" name="Lastname" placeholder="Last Name" required>
                                                        <input type="email" class="form-control" name="email" placeholder="Email" required>
@@ -117,7 +117,7 @@
                                              </div>
 
                                              <div role="tabpanel" class="tab-pane fade in" id="sign_in">
-                                                  <form action="#" method="post">
+                                                  <form action="/moddle/login.php" method="post" class="submit_form">
                                                        <input type="email" class="form-control" name="email" placeholder="Email" required>
                                                        <input type="password" class="form-control" name="password" placeholder="Password" required>
                                                        <div class="row align-items-center">
@@ -260,7 +260,7 @@
      </script>
      <script>
           $(function() {
-               $("#submit_form").submit(function() {
+               $(".submit_form").submit(function() {
                     $.ajax({
                          url: $(this).attr("action"),
                          method: $(this).attr("method"),
@@ -276,6 +276,7 @@
                               toastr.error("Có lỗi khi kết nối với máy chủ!");
                          }
                     });
+                    $(this).find(".recaptcha_form").attr("src", "/captcha.php?v=" + new Date().getTime());
                     return false;
                });
           })
