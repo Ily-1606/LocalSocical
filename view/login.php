@@ -122,7 +122,7 @@
                                                        <input type="password" class="form-control" name="password" placeholder="Password" required>
                                                        <div class="row align-items-center">
                                                             <div class="col">
-                                                                 <input name="captcha" type="text" placeholder="Nhập kết quả bên" class="form-control">
+                                                                 <input name="captcha" type="text" placeholder="Enter result" class="form-control">
                                                             </div>
                                                             <div class="col">
                                                                  <img src="/captcha.php" class="recaptcha_form" />
@@ -264,6 +264,7 @@
                     $.ajax({
                          url: $(this).attr("action"),
                          method: $(this).attr("method"),
+                         data: $(this).serialize(),
                          success: function(e) {
                               e = JSON.parse(e);
                               if (e.status) {
