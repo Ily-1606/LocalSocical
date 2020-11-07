@@ -1,39 +1,57 @@
 <?php
+session_start();
 include("../_connect.php");
 $secure_code_base = "ABC";
-if(isset($_GET["email"]) && isset($_GET["password"]) && isset($_GET["re_password"]) && isset($_GET["first_name"]) && isset($_GET["last_name"]) && isset($_GET["secure_code"]) && isset($_GET["phone_number"]) && isset($_GET["gender"])){
-    $email = mysqli_real_escape_string($conn,$_GET["email"]);
-    $password = mysqli_real_escape_string($conn,$_GET["password"]);
-    $re_password = mysqli_real_escape_string($conn,$_GET["re_password"]);
-    $first_name = mysqli_real_escape_string($conn,$_GET["first_name"]);
-    $last_name = mysqli_real_escape_string($conn,$_GET["last_name"]);
-    $secure_code = mysqli_real_escape_string($conn,$_GET["secure_code"]);
-    $phone_number = mysqli_real_escape_string($conn,$_GET["phone_number"]);
-    $gender = mysqli_real_escape_string($conn,$_GET["gender"]);
-    //$captcha = mysqli_real_escape_string($conn,$_GET["captcha"]);
-    if(filter_var($email, FILTER_VALIDATE_EMAIL) == false){
-        echo "Email không hợp lệ!";
-        die; //Thoát khỏi chương trình
-    }
-    if($password != $re_password){
-        echo "Mật khẩu không khớp!";
-        die;
-    }
-    $password = md5($password);
-    if($secure_code != $secure_code_base){
-        echo "Secure code không hợp lệ!";
-        die;
-    }
-    if($gender != 1 && $gender != 2){
-        echo "Giới tính không hợp lệ!";
-        die;
-    }
-    $result = mysqli_query($conn,"INSERT INTO `table_account` (`email`,`password`,`first_name`,`last_name`,`phone_number`,`gender`) VALUES ('$email','$password','$first_name','$last_name','$phone_number',$gender)");
-    if($result){
-        echo "Đăng ký thành công!";
-    }
-    else{
-        echo "Đăng ký thất bại! Vui lòng thử lại sau!";
+if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["re_password"]) && isset($_POST["Firstname"]) && isset($_POST["Lastname"]) && isset($_POST["Securecode"]) && isset($_POST["telephone"]) && isset($_POST["gender"]) && isset($_POST["captcha"])) {
+    $email = mysqli_real_escape_string($conn, $_POST["email"]);
+    $password = mysqli_real_escape_string($conn, $_POST["password"]);
+    $re_password = mysqli_real_escape_string($conn, $_POST["re_password"]);
+    $first_name = mysqli_real_escape_string($conn, $_POST["Firstname"]);
+    $last_name = mysqli_real_escape_string($conn, $_POST["Lastname"]);
+    $secure_code = mysqli_real_escape_string($conn, $_POST["Securecode"]);
+    $phone_number = mysqli_real_escape_string($conn, $_POST["telephone"]);
+    $gender = mysqli_real_escape_string($conn, $_POST["gender"]);
+    $captcha = mysqli_real_escape_string($conn, $_POST["captcha"]);
+    $data = array();
+    if ($captcha == $_SESSION["captcha"]) {
+        unset($_SESSION["captcha"]);
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) == false) {
+            $data["status"] = false;
+            $data["msg"] = "Email invalid!";
+            echo json_encode($data);
+            die; //Thoát khỏi chương trình
+        }
+        if ($password != $re_password) {
+            $data["status"] = false;
+            $data["msg"] = "Password not match!";
+            echo json_encode($data);
+            die;
+        }
+        $password = md5($password);
+        if ($secure_code != $secure_code_base) {
+            $data["status"] = false;
+            $data["msg"] = "Secure code wrong!";
+            echo json_encode($data);
+            die;
+        }
+        if ($gender != 1 && $gender != 2) {
+            echo "Gender wrong!";
+            echo json_encode($data);
+            die;
+        }
+        $result = mysqli_query($conn, "INSERT INTO `table_account` (`email`,`password`,`first_name`,`last_name`,`phone_number`,`gender`) VALUES ('$email','$password','$first_name','$last_name','$phone_number',$gender)");
+        if ($result) {
+            $data["status"] = true;
+            $data["msg"] = "Regsister completed!";
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Regsister failed, please try againt!";
+        }
+        echo json_encode($data);
+    } else {
+        unset($_SESSION["captcha"]);
+        $data["status"] = false;
+        $data["msg"] = "Captcha wrong!";
+        echo json_encode($data);
     }
 }
-?>
