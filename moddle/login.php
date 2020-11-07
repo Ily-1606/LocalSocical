@@ -7,6 +7,7 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["captcha
     $captcha = $_POST["captcha"];
     $data = [];
     if ($captcha == $_SESSION["captcha"]) {
+        unset($_SESSION["captcha"]);
         $password = md5($password);
         $result = mysqli_query($conn, "SELECT * FROM `table_account` WHERE `email` = '$email' AND `password` = '$password'");
         $row = mysqli_fetch_assoc($result);
@@ -20,6 +21,7 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["captcha
             $data["msg"] = "Email or password not match! Please try againt!";
         }
     } else {
+        unset($_SESSION["captcha"]);
         $data["status"] = false;
         $data["msg"] = "Captcha wrong!";
     }
