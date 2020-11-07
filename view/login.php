@@ -260,7 +260,7 @@
      </script>
      <script>
           $(function() {
-               $("#submit_form").click(function() {
+               $("#submit_form").submit(function() {
                     $.ajax({
                          url: $(this).attr("action"),
                          method: $(this).attr("method"),
@@ -275,8 +275,9 @@
                               console.info(e);
                               toastr.error("Có lỗi khi kết nối với máy chủ!");
                          }
-                    })
-               })
+                    });
+                    return false;
+               });
           })
      </script>
 
