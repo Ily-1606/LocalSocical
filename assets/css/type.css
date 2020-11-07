@@ -432,7 +432,7 @@ section {
     border-color: pink;
 }
 
-.modal-dialog form input[type="submit"] {
+.modal-dialog form input[type="submit"], .modal-dialog form button.submit_form_btn {
     background: #ce3232;
     border-color: transparent;
     border-radius: 100px;

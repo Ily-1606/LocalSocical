@@ -50,7 +50,7 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["re_pass
         $result = mysqli_query($conn, "INSERT INTO `table_account` (`email`,`password`,`first_name`,`last_name`,`phone_number`,`gender`) VALUES ('$email','$password','$first_name','$last_name','$phone_number',$gender)");
         if ($result) {
             $data["status"] = true;
-            $data["msg"] = "Regsister completed!";
+            $data["msg"] = "Regsister completed! We will redirect in 3s!";
             $result = mysqli_query($conn, "SELECT * FROM `table_account` WHERE email = '$email' LIMIT 1");
             $result = mysqli_fetch_assoc($result);
             $_SESSION["id"] = $result["id"];

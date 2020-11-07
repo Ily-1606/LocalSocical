@@ -112,7 +112,7 @@
                                                                  <img src="/captcha.php" class="recaptcha_form" />
                                                             </div>
                                                        </div>
-                                                       <input name="submit" type="submit" class="form-control" value="Regsister">
+                                                       <button class="form-control submit_form_btn">Regsister</button>
                                                   </form>
                                              </div>
 
@@ -128,7 +128,7 @@
                                                                  <img src="/captcha.php" class="recaptcha_form" />
                                                             </div>
                                                        </div>
-                                                       <input name="submit" type="submit" class="form-control" value="Login">
+                                                       <button class="form-control submit_form_btn">Login</button>
                                                   </form>
                                                   <a href="#">Login with face recognition?</a>
                                                   </form>
@@ -261,18 +261,26 @@
      <script>
           $(function() {
                $(".submit_form").submit(function() {
+                    $old_text = $(this).find(".submit_form_btn").text();
+                    $(this).find(".submit_form_btn").text("Processing...").prop("disabled", true);
+                    $_this = $(this);
                     $.ajax({
                          url: $(this).attr("action"),
                          method: $(this).attr("method"),
                          data: $(this).serialize(),
                          success: function(e) {
+                              $_this.find(".submit_form_btn").text($old_text).prop("disabled", false);
                               e = JSON.parse(e);
                               if (e.status) {
                                    toastr.success(e.msg);
+                                   setTimeout(function(e){
+                                   window.location.href = "/";
+                                   },3000);
                               } else
                                    toastr.error(e.msg);
                          },
                          error: function(e) {
+                              $_this.find(".submit_form_btn").text($old_text).prop("disabled", false);
                               console.info(e);
                               toastr.error("Có lỗi khi kết nối với máy chủ!");
                          }
