@@ -418,7 +418,7 @@ section {
     padding-top: 20px;
 }
 
-.modal-dialog form .form-control {
+form.submit_form .form-control {
     border-radius: 5px;
     border: 1px solid #595959;
     background: transparent;
@@ -432,7 +432,7 @@ section {
     border-color: pink;
 }
 
-.modal-dialog form input[type="submit"], .modal-dialog form button.submit_form_btn {
+form.submit_form input[type="submit"], .modal-dialog form button.submit_form_btn {
     background: #ce3232;
     border-color: transparent;
     border-radius: 100px;
