@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 05, 2020 lúc 04:06 PM
+-- Thời gian đã tạo: Th10 11, 2020 lúc 04:50 PM
 -- Phiên bản máy phục vụ: 10.4.13-MariaDB
 -- Phiên bản PHP: 7.2.32
 
@@ -33,7 +33,7 @@ CREATE TABLE `table_account` (
   `last_name` varchar(30) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `avatar` varchar(255) DEFAULT NULL,
+  `avatar` varchar(255) DEFAULT '/assets/img/male.png',
   `phone_number` varchar(30) DEFAULT NULL,
   `gender` int(11) DEFAULT NULL,
   `create_time` timestamp NOT NULL DEFAULT current_timestamp()
@@ -44,8 +44,8 @@ CREATE TABLE `table_account` (
 --
 
 INSERT INTO `table_account` (`id`, `first_name`, `last_name`, `email`, `password`, `avatar`, `phone_number`, `gender`, `create_time`) VALUES
-(1, 'Nguyễn', 'Nguyên', 'khuonmatdangthuong45@gmail.com', '6d590d0d8702e8132a77913bf707de45', NULL, NULL, 1, '2020-11-05 14:10:43'),
-(2, 'Nguyen', 'Nguyen', 'no1.ily1606@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', NULL, '875176515', 1, '2020-11-05 15:04:44');
+(1, 'Nguyen', 'Nguyen', 'khuonmatdangthuong45@gmail.com', '6d590d0d8702e8132a77913bf707de45', '/assets/img/male.png', '0328267412', 1, '2020-11-07 16:21:42'),
+(2, 'Nguyễn', 'Nguyên', 'no1.ily1606@gmail.com', '6d590d0d8702e8132a77913bf707de45', '/assets/img/male.png', '0328267412', 1, '2020-11-11 14:14:45');
 
 --
 -- Chỉ mục cho các bảng đã đổ
