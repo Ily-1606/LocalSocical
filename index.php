@@ -1,8 +1,11 @@
 <?php
 session_start();
 if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
+    include("_connect.php");
     $id = $_SESSION["id"];
     $email = $_SESSION["email"];
+    $account = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM table_account WHERE id = $id"));
+
     //echo $email;
 ?>
     <html>
@@ -17,141 +20,35 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                             <img src="/assets/img/LG.png" width="100px">
                         </div>
                         <div class="col-9 h4 text-center">
-                            Tên cuộc trò chuyện
+
                         </div>
                     </div>
                 </section>
             </div>
         </div>
         <div class="row main_chat">
-            <div class="col-3 border-right">
+            <div class="col-3 border-right frame_list_user p-0">
                 <div class="list_user">
-                    <div class="d-inline-block align-middle mr-2">
-                        <img src="/assets/img/male.png" width="60px" height="60px" class="rounded-circle">
-                    </div>
-                    <div class="d-inline-block align-middle">
-                        <h4>{{Tên cuộc trò chuyện}}</h4>
-                        <small>{{Tin nhắn cuối cùng}}</small>
+                    <div class="loader bar">
+                        <div></div>
                     </div>
                 </div>
-                <div class="list_user">
-                    <div class="d-inline-block align-middle mr-2">
-                        <img src="/assets/img/male.png" width="60px" height="60px" class="rounded-circle">
-                    </div>
-                    <div class="d-inline-block align-middle">
-                        <h4>{{Tên cuộc trò chuyện}}</h4>
-                        <small>{{Tin nhắn cuối cùng}}</small>
+                <div class="user_setting border-top">
+                    <div class="user_room">
+                        <div class="d-inline-block align-middle mr-2">
+                            <img src="<?php echo $account["avatar"] ?>" width="60px" height="60px" class="rounded-circle">
+                        </div>
+                        <div class="d-inline-block align-middle">
+                            <h4><?php echo $account["first_name"] . " " . $account["last_name"] ?></h4>
+                            <small><a href="/logout.php">Đăng xuất</a></small>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-9 frame_chat">
                 <div class="message_list mt-3">
-                    <div class="message row col-12 justify-content-start mt-2">
-                        <div class="mr-2">
-                            <img src="/assets/img/male.png" width="40px" height="40px" class="rounded-circle">
-                        </div>
-                        <div class="message_outer">
-                            <div class="message_content rounded">
-                                <div class="message_text">
-                                    {{text_here}}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <small>
-                                    {{time}}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="message row col-12 justify-content-start mt-2">
-                        <div class="mr-2">
-                            <img src="/assets/img/male.png" width="40px" height="40px" class="rounded-circle">
-                        </div>
-                        <div class="message_outer">
-                            <div class="message_content rounded">
-                                <div class="message_text">
-                                    {{text_here}}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <small>
-                                    {{time}}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="message row col-12 justify-content-start mt-2">
-                        <div class="mr-2">
-                            <img src="/assets/img/male.png" width="40px" height="40px" class="rounded-circle">
-                        </div>
-                        <div class="message_outer">
-                            <div class="message_content rounded">
-                                <div class="message_text">
-                                    {{text_here}}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <small>
-                                    {{time}}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="message row col-12 justify-content-end mt-2">
-                        <div class="message_outer">
-                            <div class="message_content rounded">
-                                <div class="message_text">
-                                    {{text_here}}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <small>
-                                    {{time}}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="message row col-12 justify-content-end mt-2">
-                        <div class="message_outer">
-                            <div class="message_content rounded">
-                                <div class="message_text">
-                                    {{text_here}}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <small>
-                                    {{time}}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="message row col-12 justify-content-end mt-2">
-                        <div class="message_outer">
-                            <div class="message_content rounded">
-                                <div class="message_text">
-                                    {{text_here}}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <small>
-                                    {{time}}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="message row col-12 justify-content-end mt-2">
-                        <div class="message_outer">
-                            <div class="message_content rounded">
-                                <div class="message_text">
-                                    {{text_here}}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <small>
-                                    {{time}}
-                                </small>
-                            </div>
-                        </div>
+                    <div class="loader bar">
+                        <div></div>
                     </div>
                 </div>
                 <div class="input_chat row col-12 border-top">
@@ -172,11 +69,12 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
             </div>
         </div>
     </body>
-
+    <script type="text/javascript" src="/assets/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/assets/js/chat.js"></script>
     </html>
     <style>
-        .list_user {
-            margin-left: 20px;
+        .user_room {
+            margin-left: 30px;
             margin-top: 20px;
         }
 
@@ -221,6 +119,22 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         .message_outer {
             color: #FFFFFF;
             margin-bottom: 5px;
+        }
+
+        .frame_list_user {
+            position: relative;
+            min-height: 100%;
+        }
+
+        .list_user {
+            width: 100%;
+            min-height: calc(100% - 110px);
+        }
+
+        .user_setting {
+            width: 100%;
+            position: absolute;
+            bottom: 0px;
         }
     </style>
 <?php

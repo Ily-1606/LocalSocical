@@ -261,6 +261,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                          method: $(this).attr("method"),
                          data: $(this).serialize(),
                          success: function(e) {
+                              $(this).find(".recaptcha_form").attr("src", "/captcha.php?v=" + new Date().getTime());
                               $_this.find(".submit_form_btn").text($old_text).prop("disabled", false);
                               e = JSON.parse(e);
                               if (e.status) {
@@ -277,7 +278,6 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                               toastr.error("Có lỗi khi kết nối với máy chủ!");
                          }
                     });
-                    $(this).find(".recaptcha_form").attr("src", "/captcha.php?v=" + new Date().getTime());
                     return false;
                });
           })
