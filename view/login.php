@@ -16,25 +16,14 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
 
      <section class="navbar custom-navbar navbar-fixed-top bg-dark" role="navigation">
           <div class="container">
-
-
-
-
                <section class="navbar custom-navbar navbar-fixed-top col-12 bg-dark" role="navigation">
                     <div class="container">
-
                          <div class="navbar-header">
-
                               <img src="/assets/img/LG.png" width="100px">
-
                          </div>
-
                          <ul class="nav navbar-nav navbar-right">
-
                               <li class="section-btn"><a href="#" data-toggle="modal" data-target="#modal-form">Sign in / Join</a></li>
                          </ul>
-
-
                     </div>
                </section>
 
@@ -136,12 +125,8 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
           </div>
      </section>
 
-
-     <script src="/assets/jquery/jquery.js"></script>
-     <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
-
+     <?php include("../footer.php"); ?>
      <script src="/assets/js/custom.js"></script>
-     <script src="/assets/toastr/js/toastr.min.js"></script>
      <script type='text/javascript'>
           var pictureSrc = "/assets/img/br.png";
           var pictureWidth = 25; //

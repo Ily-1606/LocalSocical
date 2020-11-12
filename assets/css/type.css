@@ -418,7 +418,7 @@ section {
     padding-top: 20px;
 }
 
-form.submit_form .form-control {
+.submit_form .form-control {
     border-radius: 5px;
     border: 1px solid #595959;
     background: transparent;
@@ -427,12 +427,12 @@ form.submit_form .form-control {
     height: 50px;
 }
 
-.modal-dialog form .form-control:hover,
-.modal-dialog form .form-control:focus {
+.modal-dialog .submit_form .form-control:hover,
+.modal-dialog .submit_form .form-control:focus {
     border-color: pink;
 }
 
-form.submit_form input[type="submit"], .modal-dialog form button.submit_form_btn {
+.submit_form input[type="submit"], .modal-dialog button.submit_form_btn {
     background: #ce3232;
     border-color: transparent;
     border-radius: 100px;
@@ -441,7 +441,6 @@ form.submit_form input[type="submit"], .modal-dialog form button.submit_form_btn
 }
 
 .recaptcha_form {
-    height: 100%;
     align-items: center;
     width: 100%;
     justify-content: center;

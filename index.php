@@ -2,16 +2,33 @@
 session_start();
 if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
     include("_connect.php");
+    include("moddle/functions.php");
     $id = $_SESSION["id"];
     $email = $_SESSION["email"];
     $account = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM table_account WHERE id = $id"));
 
     //echo $email;
+    $thread_id = "";
+    if (isset($_GET["thread_id"])) {
+        $thread_id = $_GET["thread_id"];
+        if (is_numeric($thread_id)) {
+            if (check_user_in_room($thread_id) == false) {
+                header("Location: /");
+                die;
+            }
+        } else {
+            header("Location: /");
+            die;
+        }
+    }
 ?>
     <html>
     <?php include("header.php"); ?>
 
     <body>
+        <script>
+            window.room_id = '<?php echo $thread_id; ?>';
+        </script>
         <div class="row border-bottom">
             <div class="col-12">
                 <section class="navbar custom-navbar navbar-fixed-top col-12 bg-dark pb-1" role="navigation">
@@ -19,9 +36,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                         <div class="col-3 text-left">
                             <img src="/assets/img/LG.png" width="100px">
                         </div>
-                        <div class="col-9 h4 text-center">
-
-                        </div>
+                        <div class="col-9 h4 text-center" id="title_message"></div>
                     </div>
                 </section>
             </div>
@@ -43,19 +58,22 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                             <small><a href="/logout.php">Đăng xuất</a></small>
                         </div>
                     </div>
+                    <div class="add_group" data-toggle="modal" data-target="#modal-form">
+                        <img src="/assets/img/plus.svg" width="40px" height="40px">
+                    </div>
                 </div>
             </div>
             <div class="col-9 frame_chat">
                 <div class="message_list mt-3">
-                    <div class="loader bar">
-                        <div></div>
+                    <div class="center_text_absolute">
+                        No messages here!
                     </div>
                 </div>
                 <div class="input_chat row col-12 border-top">
                     <div class="col-9">
-                        <form action="/moddle/chat.php" method="post" class="submit_form">
-                            <input type="text" name="chat_" placeholder="Nội dung tin nhắn..." class="form-control input_s">
-                        </form>
+                        <div class="submit_form">
+                            <input type="text" name="chat_" placeholder="Nội dung tin nhắn..." class="form-control input_s" id="chat_message">
+                        </div>
                     </div>
                     <div class="col-3 row align-items-center text-right justify-content-end">
                         <div class="attachment mr-4">
@@ -68,14 +86,59 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                 </div>
             </div>
         </div>
+        <section class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content modal-popup">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="modal-title">
+                                        <h2>Create group</h2>
+                                        <img src="/assets/img/LG.png" width="100px">
+                                    </div>
+                                    <div class="tab-pane active" id="create_group">
+                                        <div class="submit_form">
+                                            <input type="text" class="form-control" name="name_group" id="name_group" placeholder="Group name" required>
+                                            <input type="text" class="form-control" name="email" id="search_email" placeholder="Enter email to search" required>
+                                            <input type="hidden" name="list_user" value="[]" id="list_user" />
+                                            <div class="text-white text-left" id="show_list_user"></div>
+                                            <div class="row align-items-center">
+                                                <div class="col">
+                                                    <input name="captcha" type="text" placeholder="Enter result" id="captcha" class="form-control">
+                                                </div>
+                                                <div class="col">
+                                                    <img src="/captcha.php" class="recaptcha_form" />
+                                                </div>
+                                            </div>
+                                            <button class="form-control submit_form_btn" id="create_room">Create</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
     </body>
-    <script type="text/javascript" src="/assets/jquery/jquery.js"></script>
-    <script type="text/javascript" src="/assets/js/chat.js"></script>
+    <?php include("footer.php"); ?>
+    <script src="/assets/js/chat.js" type="text/javascript"></script>
+
     </html>
     <style>
         .user_room {
-            margin-left: 30px;
-            margin-top: 20px;
+            padding: 10px 30px;
+            cursor: pointer;
         }
 
         .main_chat {
@@ -129,12 +192,40 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         .list_user {
             width: 100%;
             min-height: calc(100% - 110px);
+            position: relative;
         }
 
         .user_setting {
             width: 100%;
             position: absolute;
             bottom: 0px;
+        }
+
+        .center_text_absolute {
+            color: #696969;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .room_active {
+            background-color: #434343;
+        }
+
+        .add_group {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+        }
+
+        #show_list_user {
+            width: 100%;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
         }
     </style>
 <?php
