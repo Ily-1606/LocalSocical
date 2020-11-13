@@ -21,6 +21,12 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
             die;
         }
     }
+    else{
+        if(isset($_SESSION["thread_id"])){
+            header("Location: /index.php?thread_id=".$_SESSION["thread_id"]);
+            die;
+        }
+    }
 ?>
     <html>
     <?php include("header.php"); ?>
@@ -76,10 +82,10 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                         </div>
                     </div>
                     <div class="col-3 row align-items-center text-right justify-content-end">
-                        <div class="attachment mr-4">
+                        <div class="attachment mr-4 cursor-pointer">
                             <img src="/assets/img/upload.svg" width="30px" height="30px" />
                         </div>
-                        <div class="like">
+                        <div class="like cursor-pointer" id="btn-like">
                             <img src="/assets/img/like.svg" width="30px" height="30px" />
                         </div>
                     </div>
@@ -226,6 +232,9 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
 
         .cursor-pointer {
             cursor: pointer;
+        }
+        .reaction-area{
+            margin-bottom: 10px;
         }
     </style>
 <?php

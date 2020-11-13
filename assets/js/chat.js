@@ -47,9 +47,17 @@ function load_data_message(id, room_id, type) {
                     object.html('');
                     for (i = 0; i < e.data.length; i++) {
                         if (e.data[i].ower_user == "me") {
-                            object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.data[i].message_text + '</div></div><div class="text-right"><small>' + time_ago(e.data[i].timestamp) + '</small></div></div></div>');
+                            if (e.data[i].message_text == '[like]') {
+                                object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
+                            } else {
+                                object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.data[i].message_text + '</div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
+                            }
                         } else {
-                            object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.data[i].avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.data[i].message_text + '</div></div><div class="text-right"><small>' + time_ago(e.data[i].timestamp) + '</small></div></div></div>');
+                            if (e.data[i].message_text == '[like]') {
+                                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.data[i].avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
+                            } else {
+                                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.data[i].avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.data[i].message_text + '</div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
+                            }
                         }
                     }
                 }
@@ -98,6 +106,20 @@ function time_ago(time, return_day) {
         return Math.round(m) + " minutes";
     } else {
         return "just";
+    }
+}
+
+function time_intel(time) {
+    var now = new Date();
+    var ago = new Date(time * 1000);
+    hour = ago.getHours();
+    minute = ago.getMinutes();
+    date = ago.getDate();
+    month = ago.getMonth() + 1;
+    if (ago.getFullYear() == now.getFullYear()) {
+        return hour + ":" + minute + " " + date + "/" + month;
+    } else {
+        return hour + ":" + minute + " " + date + "/" + month + "/" + ago.getFullYear();
     }
 }
 
@@ -200,6 +222,9 @@ $(document).ready(function() {
             $(this).val('');
             return false;
         }
+    });
+    $("#btn-like").click(function() {
+        send_message('[like]', window.room_id);
     });
     $(".list_user").on("click", ".room_chat", function() {
         load_data_message(".message_list", $(this).attr("attr_for_id"), $(this).attr("attr_for_type"));
