@@ -32,6 +32,63 @@ function delete_loader_bar(id) {
     $(id).find('.loader.bar').remove();
 }
 
+function render_message(e, object) {
+    if (e.type == "typping") {
+        object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div id="wave"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div></div>');
+    } else {
+        if (e.ower_user == "me") {
+            if (e.message_text == '[like]') {
+                object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+            } else {
+                object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+            }
+        } else {
+            if (e.message_text == '[like]') {
+                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+            } else {
+                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+            }
+        }
+    }
+}
+
+function append_render_message(e, object) {
+    $("#no_message").remove();
+    if (e.type == "typing") {
+        if (e.room_id == window.room_id) {
+            var who_el = object.find("#typing_" + e.info_user.user_id);
+            time = new Date().getTime();
+            if (who_el.length == 0) {
+                object.append('<div class="message row col-12 justify-content-start mt-2" id="typing_' + e.info_user.user_id + '" attr_for_user="' + e.info_user.user_id + '" attr_for_time="' + time + '"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div id="wave"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div></div>');
+            } else {
+                who_el = object.find("#typing_" + e.info_user.user_id);
+                who_el.attr("attr_for_time", time);
+            }
+            var handle = setTimeout(function() {
+                current_time = new Date().getTime();
+                who_el = object.find("#typing_" + e.info_user.user_id);
+                if (current_time - 5000 > who_el.attr("attr_for_time")) {
+                    who_el.remove();
+                }
+            }, 5000);
+        }
+    } else {
+        if (e.info_user.user_id == window.user_id) {
+            if (e.info_user.message_text == '[like]') {
+                object.append('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+            } else {
+                object.append('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.info_user.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+            }
+        } else {
+            if (e.info_user.message_text == '[like]') {
+                object.append('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+            } else {
+                object.append('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.info_user.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+            }
+        }
+    }
+}
+
 function load_data_message(id, room_id, type) {
     loader_bar(id);
     window.room_id = room_id;
@@ -46,19 +103,7 @@ function load_data_message(id, room_id, type) {
                 if (e.data.length > 0) {
                     object.html('');
                     for (i = 0; i < e.data.length; i++) {
-                        if (e.data[i].ower_user == "me") {
-                            if (e.data[i].message_text == '[like]') {
-                                object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
-                            } else {
-                                object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.data[i].message_text + '</div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
-                            }
-                        } else {
-                            if (e.data[i].message_text == '[like]') {
-                                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.data[i].avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
-                            } else {
-                                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.data[i].avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.data[i].message_text + '</div></div><div class="text-right"><small>' + time_intel(e.data[i].timestamp) + '</small></div></div></div>');
-                            }
-                        }
+                        render_message(e.data[i], object);
                     }
                 }
             } else {
@@ -143,6 +188,14 @@ async function search_user(email) {
     });
 }
 
+function ping_typing(room_id) {
+    $.ajax({
+        url: "/moddle/message.php?action=ping_typing",
+        method: "POST",
+        data: "room_id=" + room_id
+    });
+}
+
 function create_badge_user(id, data) {
     var object = $(id);
     object.append('<div class="d-inline-block badged_user"><div class="d-flex rounded-pill p-2 border align-items-center"><img src="' + data["avatar"] + '" width="30px" height="30px" class="rounded-circle"/><div class="ml-2">' + data["fullname"] + '</div><div class="ml-2 close_badge cursor-pointer" aria-hidden="true" attr_for_id="' + data["id"] + '">×</div></div></div>');
@@ -215,12 +268,18 @@ $(document).ready(function() {
                 error(e);
             }
         })
-    })
+    });
+    last_typing = new Date().getTime();
     $("#chat_message").on('keypress', function(e) {
         if (e.which == 13) {
             send_message($(this).val(), window.room_id);
             $(this).val('');
             return false;
+        } else {
+            if (new Date().getTime() - 4000 > last_typing) {
+                last_typing = new Date().getTime();
+                ping_typing(window.room_id);
+            }
         }
     });
     $("#btn-like").click(function() {
@@ -234,4 +293,30 @@ $(document).ready(function() {
     if (window.room_id != '') {
         load_data_message(".message_list", window.room_id, "room");
     }
-})
+});
+$(function() {
+    "use strict";
+    window.WebSocket = window.WebSocket || window.MozWebSocket;
+    if (!window.WebSocket) {
+        //Không hỗ trợ wss
+        return;
+    }
+    // open connection
+    var connection = new WebSocket('ws://127.0.0.1:1338/?auth_key=' + auth_token);
+    connection.onerror = function(error) {
+        //Error
+    }
+    connection.onmessage = function(message) {
+        message = JSON.parse(message.data);
+        if (message.type == "show_message") {
+            append_render_message(message, $(".message_list"))
+        } else if (message.type == "typing") {
+            append_render_message(message, $(".message_list"))
+        } else if (message.type == "seen") {
+            $("#seen_mark").attr({ "id": "" }).find('p').remove();
+            $(".from_me:last-child").attr({ "id": "seen_mark" }).find('.message_body').append('<p class="small width_100 text-right">Đã xem</p>');
+        } else if (message.type == "delete_message") {
+            $(".from_other[id_for='" + message["id"] + "']").find(".message").html(message["message"]);
+        }
+    };
+});

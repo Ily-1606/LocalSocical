@@ -56,17 +56,34 @@ if (isset($_GET["action"])) {
             $room_id = $_POST["room_id"];
             if (is_numeric($room_id)) {
                 include_once("../_connect.php");
+                include_once("functions.php");
                 $room_id = mysqli_real_escape_string($conn, $room_id);
                 $message = mysqli_real_escape_string($conn, htmlspecialchars($_POST["message"]));
                 if (check_user_login()) {
                     $id_user = $_SESSION["id"];
-                    $rs = mysqli_query($conn, "INSERT INTO table_messages (`thread_id`,`message_text`,`user_send`) VALUES ($room_id,'$message',$id_user)");
-                    if ($rs) {
-                        $data["status"] = true;
-                        $data["msg"] = "Message sent.";
+                    $info_thread = mysqli_query($conn, "SELECT * FROM table_thread WHERE id = $room_id");
+                    if (mysqli_num_rows($info_thread)) {
+                        $rs = mysqli_query($conn, "INSERT INTO table_messages (`thread_id`,`message_text`,`user_send`) VALUES ($room_id,'$message',$id_user)");
+                        if ($rs) {
+                            $id_message = mysqli_insert_id($conn);
+                            $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE table_messages.id = $id_message");
+                            $rs = mysqli_fetch_assoc($rs);
+                            $array_m = array();
+                            $info_thread = mysqli_fetch_assoc($info_thread);
+                            $array_m["info_user"] = get_single_message($rs);
+                            $array_m["send_to_user"] = json_decode($info_thread["member_list"]);
+                            $array_m["type"] = "show_message";
+                            $array_m["room_id"] = $room_id;
+                            send_wss(json_encode($array_m));
+                            $data["status"] = true;
+                            $data["msg"] = "Message sent.";
+                        } else {
+                            $data["status"] = false;
+                            $data["msg"] = "Wrong send message.";
+                        }
                     } else {
                         $data["status"] = false;
-                        $data["msg"] = "Wrong send message.";
+                        $data["msg"] = "Room id not exist.";
                     }
                 } else {
                     $data["status"] = false;
@@ -132,6 +149,32 @@ if (isset($_GET["action"])) {
         } else {
             $data["status"] = false;
             $data["msg"] = "List users not be empty.";
+        }
+    } elseif ($action == "ping_typing") {
+        if (isset($_POST["room_id"])) {
+            if (check_user_login()) {
+                include_once("../_connect.php");
+                $room_id = mysqli_real_escape_string($conn, $_POST["room_id"]);
+                $array_m = array();
+                $id = $_SESSION["id"];
+                $info_user = mysqli_query($conn, "SELECT * FROM table_account WHERE id = $id");
+                $info_user = mysqli_fetch_assoc($info_user);
+                $array_m["info_user"] = array("user_id" => $info_user["id"], "fullname" => $info_user["first_name"] . " " . $info_user["last_name"], "avatar" => $info_user["avatar"]);
+                $array_m["type"] = "typing";
+                $array_m["room_id"] = $room_id;
+                $info_thread = mysqli_query($conn, "SELECT * FROM table_thread WHERE id = $room_id");
+                if (mysqli_num_rows($info_thread)) {
+                    $info_thread = mysqli_fetch_assoc($info_thread);
+                    $array_m["send_to_user"] = json_decode($info_thread["member_list"]);
+                    send_wss(json_encode($array_m));
+                }
+            } else {
+                $data["msg"] = "Please login againt.";
+                $data["status"] = false;
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Unknow room id.";
         }
     } else {
         $data["status"] = false;

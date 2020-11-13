@@ -20,10 +20,9 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
             header("Location: /");
             die;
         }
-    }
-    else{
-        if(isset($_SESSION["thread_id"])){
-            header("Location: /index.php?thread_id=".$_SESSION["thread_id"]);
+    } else {
+        if (isset($_SESSION["thread_id"])) {
+            header("Location: /index.php?thread_id=" . $_SESSION["thread_id"]);
             die;
         }
     }
@@ -34,6 +33,9 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
     <body>
         <script>
             window.room_id = '<?php echo $thread_id; ?>';
+            window.user_id = '<?php echo $id; ?>';
+            window.auth_token = '<?php include("moddle/hash.php");
+                                    echo encrypt($id . "-" . time()) ?>';
         </script>
         <div class="row border-bottom">
             <div class="col-12">
@@ -71,7 +73,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
             </div>
             <div class="col-9 frame_chat">
                 <div class="message_list mt-3">
-                    <div class="center_text_absolute">
+                    <div class="center_text_absolute" id="no_message">
                         No messages here!
                     </div>
                 </div>
@@ -177,6 +179,9 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         .message_list {
             width: 100%;
             min-height: calc(100% - 110px);
+            max-height: calc(100% - 110px);
+            overflow: auto;
+
         }
 
         .message_content {
@@ -233,7 +238,8 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         .cursor-pointer {
             cursor: pointer;
         }
-        .reaction-area{
+
+        .reaction-area {
             margin-bottom: 10px;
         }
     </style>
