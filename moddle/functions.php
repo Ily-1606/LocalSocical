@@ -18,6 +18,7 @@ function get_single_message($row)
     $arr["fullname"] = $row["first_name"] . " " . $row["last_name"];
     $arr["user_id"] = $row["user_id"];
     $arr["message_text"] = $row["message_text"];
+    $arr["file"] = $row["attachment"];
     $arr["time_sent"] = $row["create_time"];
     $time = new DateTime($row["create_time"]);
     $arr["timestamp"] = $time->format('U');
@@ -31,7 +32,7 @@ function render_messages($room_id)
 {
     global $conn;
     $data = array();
-    $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE thread_id = $room_id ORDER BY create_time DESC");
+    $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE thread_id = $room_id ORDER BY create_time DESC LIMIT 0,10");
     while ($row = mysqli_fetch_array($rs)) {
         $arr = get_single_message($row);
         array_push($data, $arr);

@@ -32,21 +32,52 @@ function delete_loader_bar(id) {
     $(id).find('.loader.bar').remove();
 }
 
+function check_type_file(fileName) {
+    var extensionLists = {};
+    extensionLists.video = ['m4v', 'avi', 'mpg', 'mp4', 'webm'];
+    extensionLists.image = ['jpg', 'gif', 'bmp', 'png', 'jpeg'];
+    regex = new RegExp('[^.]+$');
+    extension = fileName.match(regex)[0];
+    if (extensionLists.image.indexOf(extension) > -1) {
+        return "image";
+    } else if (extensionLists.video.indexOf(extension) > -1) {
+        return "video";
+    } else {
+        return "other";
+    }
+}
+
 function render_message(e, object) {
     if (e.type == "typping") {
         object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div id="wave"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div></div>');
     } else {
         if (e.ower_user == "me") {
-            if (e.message_text == '[like]') {
+            if (e.file != null) {
+                if (check_type_file(e.file) == "image")
+                    var media = '<img src="' + e.file + '">';
+                else if (check_type_file(e.file) == "video")
+                    var media = '<video src="' + e.file + '" controls muted>';
+                else
+                    var media = '<a href="' + e.file + '" target="_blank">' + create_badge_file(e.file) + '</a>';
+                object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="media-area">' + media + '</div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+            } else if (e.message_text == '[like]') {
                 object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
             } else {
                 object.prepend('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
             }
         } else {
-            if (e.message_text == '[like]') {
-                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+            if (e.file != null) {
+                if (check_type_file(e.file) == "image")
+                    var media = '<img src="' + e.file + '">';
+                else if (check_type_file(e.file) == "video")
+                    var media = '<video src="' + e.file + '" controls muted>';
+                else
+                    var media = '<a href="' + e.file + '" target="_blank">' + create_badge_file(e.file) + '</a>';
+                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="media-area">' + media + '</div><div class="text-left"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+            } else if (e.message_text == '[like]') {
+                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-left"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
             } else {
-                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
+                object.prepend('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.message_text + '</div></div><div class="text-left"><small>' + time_intel(e.timestamp) + '</small></div></div></div>');
             }
         }
     }
@@ -74,16 +105,32 @@ function append_render_message(e, object) {
         }
     } else {
         if (e.info_user.user_id == window.user_id) {
-            if (e.info_user.message_text == '[like]') {
+            if (e.info_user.file != null) {
+                if (check_type_file(e.info_user.file) == "image")
+                    var media = '<img src="' + e.info_user.file + '">';
+                else if (check_type_file(e.info_user.file) == "video")
+                    var media = '<video src="' + e.info_user.file + '" controls muted>';
+                else
+                    var media = '<a href="' + e.info_user.file + '" target="_blank">' + create_badge_file(e.info_user.file) + '</a>';
+                object.append('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="media-area">' + media + '</div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+            } else if (e.info_user.message_text == '[like]') {
                 object.append('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
             } else {
                 object.append('<div class="message row col-12 justify-content-end mt-2"><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.info_user.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
             }
         } else {
-            if (e.info_user.message_text == '[like]') {
-                object.append('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+            if (e.info_user.file != null) {
+                if (check_type_file(e.info_user.file) == "image")
+                    var media = '<img src="' + e.info_user.file + '">';
+                else if (check_type_file(e.info_user.file) == "video")
+                    var media = '<video src="' + e.info_user.file + '" controls muted>';
+                else
+                    var media = '<a href="' + e.info_user.file + '" target="_blank">' + create_badge_file(e.info_user.file) + '</a>';
+                object.append('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="media-area">' + media + '</div><div class="text-left"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+            } else if (e.info_user.message_text == '[like]') {
+                object.append('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div class="like cursor-pointer"><img src="/assets/img/like.svg" width="45px" height="45px" /></div></div><div class="text-left"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
             } else {
-                object.append('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.info_user.message_text + '</div></div><div class="text-right"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
+                object.append('<div class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.info_user.message_text + '</div></div><div class="text-left"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
             }
         }
     }
@@ -168,8 +215,73 @@ function time_intel(time) {
     }
 }
 
-function create_modal() {
-
+function create_modal_media(source) {
+    var blob_file = URL.createObjectURL(source);
+    if (source.type.split('/')[0] == "image")
+        var media = '<div class="media_preview"><img src="' + blob_file + '" width="325px" /></div>';
+    else if (source.type.split('/')[0] == "video")
+        var media = '<div class="media_preview"><video src="' + blob_file + '" width="325px" controls /></div>';
+    else
+        var media = '<div class="media_preview">' + create_badge_file(source.name) + '</div>'
+    var html = '<section class="modal fade" id="modal_media" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">' +
+        '<div class="modal-dialog modal-lg">' +
+        '<div class="modal-content modal-popup">' +
+        '<div class="modal-header">' +
+        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+        '<span aria-hidden="true">&times;</span>' +
+        '</button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+        '<div class="container-fluid">' +
+        '<div class="row">' +
+        '<div class="col-md-12 col-sm-12">' +
+        '<div class="tab-pane active" id="create_media">' +
+        '<div class="submit_form">' +
+        media +
+        '<div class="row">' +
+        '<div class="col">' +
+        '<button class="form-control" id="cancel_media">Cancel</button>' +
+        '</div><div class="col">' +
+        '<button class="form-control submit_form_btn" id="upload_media">Upload</button>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</section>';
+    $("body").append(html);
+    $(function() {
+        $("#modal_media").on("hidden.bs.modal", function() {
+            $(this).remove();
+        });
+        $("#modal_media").modal({ "show": true });
+        $("#cancel_media").click(function() {
+            $("#modal_media").modal("hide");
+        });
+        $("#upload_media").click(function() {
+            var fd = new FormData();
+            fd.append('fname', source.name);
+            fd.append('data', source);
+            fd.append('room_id', window.room_id);
+            $.ajax({
+                type: 'POST',
+                url: '/moddle/files.php?action=upload',
+                beforeSend: function() {
+                    loader_bar("#modal_media>div");
+                },
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function(data) {
+                delete_loader_bar("#modal_media>div");
+                $("#modal_media").modal("hide");
+            });
+        });
+    })
 }
 async function search_user(email) {
     return new Promise((resolve, reject) => {
@@ -194,6 +306,10 @@ function ping_typing(room_id) {
         method: "POST",
         data: "room_id=" + room_id
     });
+}
+
+function create_badge_file(data) {
+    return '<div class="d-inline-block badged_file"><div class="d-flex rounded-pill p-2 border align-items-center"><img src="/assets/img/file.svg"" width="30px" height="30px" class="rounded"/><div class="ml-2">' + data + '</div></div></div>';
 }
 
 function create_badge_user(id, data) {
@@ -282,6 +398,10 @@ $(document).ready(function() {
             }
         }
     });
+    $("#file").change(function() {
+        console.info($(this)[0]);
+        create_modal_media($(this)[0].files[0]);
+    })
     $("#btn-like").click(function() {
         send_message('[like]', window.room_id);
     });
@@ -293,6 +413,14 @@ $(document).ready(function() {
     if (window.room_id != '') {
         load_data_message(".message_list", window.room_id, "room");
     }
+    document.onpaste = function(evt) {
+        const dT = evt.clipboardData || window.clipboardData;
+        if (dT.files.length > 0) {
+            const file = dT.files[0];
+            console.info(file);
+            create_modal_media(file);
+        }
+    };
 });
 $(function() {
     "use strict";

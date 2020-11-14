@@ -84,9 +84,10 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                         </div>
                     </div>
                     <div class="col-3 row align-items-center text-right justify-content-end">
-                        <div class="attachment mr-4 cursor-pointer">
+                        <input type="file" name="data" id="file" class="d-none">
+                        <label class="attachment m-0 mr-4 cursor-pointer" for="file">
                             <img src="/assets/img/upload.svg" width="30px" height="30px" />
-                        </div>
+                        </label>
                         <div class="like cursor-pointer" id="btn-like">
                             <img src="/assets/img/like.svg" width="30px" height="30px" />
                         </div>
@@ -151,6 +152,8 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
 
         .main_chat {
             min-height: calc(100% - 130px);
+            max-height: calc(100% - 130px);
+            height: calc(100% - 130px);
         }
 
         body {
@@ -184,6 +187,13 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
 
         }
 
+        .badged_file {
+            width: 100%;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
         .message_content {
             background: -webkit-linear-gradient(to right, #434343, #000000);
             background: linear-gradient(to right, #434343, #000000);
@@ -193,6 +203,11 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         .message_outer {
             color: #FFFFFF;
             margin-bottom: 5px;
+            max-width: 50%;
+        }
+
+        .media-area>img {
+            max-height: 300px;
         }
 
         .frame_list_user {
@@ -239,7 +254,8 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
             cursor: pointer;
         }
 
-        .reaction-area {
+        .reaction-area,
+        .media-area {
             margin-bottom: 10px;
         }
     </style>
