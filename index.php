@@ -258,6 +258,25 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         .media-area {
             margin-bottom: 10px;
         }
+        .message .trash{
+            margin-top: 10px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: all 0.5s;
+            opacity: 0;
+        }
+        .message .trash>img{
+            width: 25px;
+            height: 25px;
+        }
+        .message:hover .trash{
+            opacity: 1;
+        }
+        .deleted_ms{
+            font-weight: bold;
+            font-size: 80%;
+            font-style: italic;
+        }
     </style>
 <?php
 } else {

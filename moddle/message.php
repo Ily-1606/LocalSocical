@@ -13,8 +13,9 @@ if (isset($_GET["action"])) {
                 $type = mysqli_real_escape_string($conn, $_GET["type"]);
                 $id_user = $_SESSION["id"];
                 if (check_user_login()) {
-                    if (isset($_GET["next"])) {
-                        //   $next =
+                    $mark_message = null;
+                    if (isset($_GET["next_page"])) {
+                        $mark_message = mysqli_real_escape_string($conn, base64_decode($_GET["next_page"]));
                     }
                     $data["status"] = true;
                     $data["data"] = array();
@@ -26,7 +27,7 @@ if (isset($_GET["action"])) {
                         if (mysqli_num_rows($rs)) {
                             $rs = mysqli_fetch_assoc($rs);
                             $data["room_id"] = $rs["id"];
-                            $data["data"] = render_messages($rs["id"]);
+                            $data["data"] = render_messages($rs["id"], $mark_message);
                             $_SESSION["thread_id"] = $rs["id"];
                         } else {
                             $list_member = json_encode(array($id_user, $room_id));
@@ -35,7 +36,7 @@ if (isset($_GET["action"])) {
                             $_SESSION["thread_id"] = $data["room_id"];
                         }
                     } else {
-                        $data["data"] = render_messages($room_id);
+                        $data["data"] = render_messages($room_id, $mark_message);
                         $data["room_id"] = $room_id;
                         $_SESSION["thread_id"] = $room_id;
                     }
@@ -175,6 +176,44 @@ if (isset($_GET["action"])) {
         } else {
             $data["status"] = false;
             $data["msg"] = "Unknow room id.";
+        }
+    } elseif ($action == "delete_message") {
+        if (isset($_POST["id_message"])) {
+            if (check_user_login()) {
+                include_once("../_connect.php");
+                $id_message = mysqli_real_escape_string($conn, $_POST["id_message"]);
+                $array_m = array();
+                $id = $_SESSION["id"];
+                $rs = mysqli_query($conn, "SELECT * FROM table_messages WHERE id = $id_message AND user_send = $id");
+                if (mysqli_num_rows($rs)) {
+                    if (mysqli_query($conn, "UPDATE table_messages SET hidden = 1 WHERE id = $id_message")) {
+                        $rs = mysqli_fetch_assoc($rs);
+                        $array_m["type"] = "delete_message";
+                        $array_m["room_id"] = $rs["thread_id"];
+                        $array_m["message_id"] = $id_message;
+                        $info_thread = mysqli_query($conn, "SELECT * FROM table_thread WHERE id = " . $rs["thread_id"]);
+                        if (mysqli_num_rows($info_thread)) {
+                            $info_thread = mysqli_fetch_assoc($info_thread);
+                            $array_m["send_to_user"] = json_decode($info_thread["member_list"]);
+                            $data["status"] = true;
+                            $data["msg"] = "Message deleted.";
+                            send_wss(json_encode($array_m));
+                        }
+                    } else {
+                        $data["msg"] = "Error while delete message.";
+                        $data["status"] = false;
+                    }
+                } else {
+                    $data["msg"] = "Message not exist.";
+                    $data["status"] = false;
+                }
+            } else {
+                $data["msg"] = "Please login againt.";
+                $data["status"] = false;
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Unknow message id.";
         }
     } else {
         $data["status"] = false;

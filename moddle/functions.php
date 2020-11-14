@@ -17,7 +17,12 @@ function get_single_message($row)
     $arr["lname"] = $row["last_name"];
     $arr["fullname"] = $row["first_name"] . " " . $row["last_name"];
     $arr["user_id"] = $row["user_id"];
+    $arr["id_message"] = $row["id"];
+    $arr["type"] = "show";
+    if($row["hidden"] == 0)
     $arr["message_text"] = $row["message_text"];
+    else
+    $arr["type"] = "deleted";
     $arr["file"] = $row["attachment"];
     $arr["time_sent"] = $row["create_time"];
     $time = new DateTime($row["create_time"]);
@@ -28,11 +33,16 @@ function get_single_message($row)
         $arr["ower_user"] = "other";
     return $arr;
 }
-function render_messages($room_id)
+function render_messages($room_id,$next_page = null)
 {
     global $conn;
     $data = array();
-    $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE thread_id = $room_id ORDER BY create_time DESC LIMIT 0,10");
+    $sub_query = "";
+    if($next_page != null){
+        $next_page = date("Y/m/d H:i:s",$next_page);
+        $sub_query = " AND table_messages.create_time < '$next_page'";
+    }
+    $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE thread_id = $room_id $sub_query ORDER BY create_time DESC LIMIT 0,10");
     while ($row = mysqli_fetch_array($rs)) {
         $arr = get_single_message($row);
         array_push($data, $arr);
