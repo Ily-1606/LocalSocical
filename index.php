@@ -51,10 +51,29 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         </div>
         <div class="row main_chat">
             <div class="col-3 border-right frame_list_user p-0">
-                <div class="list_user">
+                <div class="row font-weight-bold mt-2 text-white">
+                    <div class="col text-center">
+                        <a href="#list_recent" id="list_recent_tab" class="pb-1 border-bottom active_list active" style="border-bottom-width: 2px!important;" aria-controls="list_recent" role="tab" data-toggle="tab" aria-selected="true">
+                            Recent
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="#list_user" id="list_user_tab" class="pb-1 border-bottom active_list" style="border-bottom-width: 2px!important;" aria-controls="list_user" role="tab" data-toggle="tab" aria-selected="false">
+                            All user
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-4 ml-2">
+                <div class="list_user tab-pane fade" role="tabpanel" id="list_user">
                     <div class="loader bar">
                         <div></div>
                     </div>
+                </div>
+                <div class="list_recent tab-pane fade in active show" role="tabpanel" id="list_recent">
+                    <div class="loader bar">
+                        <div></div>
+                    </div>
+                </div>
                 </div>
                 <div class="user_setting border-top">
                     <div class="user_room">
@@ -142,142 +161,9 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
     </body>
     <?php include("footer.php"); ?>
     <script src="/assets/js/chat.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="/assets/css/chat.css">
 
     </html>
-    <style>
-        .user_room {
-            padding: 10px 30px;
-            cursor: pointer;
-        }
-
-        .main_chat {
-            min-height: calc(100% - 130px);
-            max-height: calc(100% - 130px);
-            height: calc(100% - 130px);
-        }
-
-        body {
-            min-height: 100%;
-        }
-
-        .frame_chat {
-            position: relative;
-            min-height: 100%;
-            overflow: auto;
-        }
-
-        .input_chat {
-            position: absolute;
-            bottom: 0px;
-        }
-
-        .submit_form .input_s {
-            border: 0px !important;
-        }
-
-        .like {
-            color: #ce3232;
-        }
-
-        .message_list {
-            width: 100%;
-            min-height: calc(100% - 110px);
-            max-height: calc(100% - 110px);
-            overflow: auto;
-
-        }
-
-        .badged_file {
-            width: 100%;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            color: #ffffff;
-        }
-
-        .message_content {
-            background: -webkit-linear-gradient(to right, #434343, #000000);
-            background: linear-gradient(to right, #434343, #000000);
-            padding: 10px;
-        }
-
-        .message_outer {
-            color: #FFFFFF;
-            margin-bottom: 5px;
-            max-width: 50%;
-        }
-
-        .media-area>img {
-            max-height: 300px;
-        }
-
-        .frame_list_user {
-            position: relative;
-            min-height: 100%;
-        }
-
-        .list_user {
-            width: 100%;
-            min-height: calc(100% - 110px);
-            position: relative;
-        }
-
-        .user_setting {
-            width: 100%;
-            position: absolute;
-            bottom: 0px;
-        }
-
-        .center_text_absolute {
-            color: #696969;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .room_active {
-            background-color: #434343;
-        }
-
-        .add_group {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-        }
-
-        #show_list_user {
-            width: 100%;
-        }
-
-        .cursor-pointer {
-            cursor: pointer;
-        }
-
-        .reaction-area,
-        .media-area {
-            margin-bottom: 10px;
-        }
-        .message .trash{
-            margin-top: 10px;
-            margin-right: 10px;
-            cursor: pointer;
-            transition: all 0.5s;
-            opacity: 0;
-        }
-        .message .trash>img{
-            width: 25px;
-            height: 25px;
-        }
-        .message:hover .trash{
-            opacity: 1;
-        }
-        .deleted_ms{
-            font-weight: bold;
-            font-size: 80%;
-            font-style: italic;
-        }
-    </style>
 <?php
 } else {
     header("Location: /view/login.php");

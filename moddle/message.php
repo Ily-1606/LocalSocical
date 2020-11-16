@@ -36,8 +36,23 @@ if (isset($_GET["action"])) {
                             $_SESSION["thread_id"] = $data["room_id"];
                         }
                     } else {
+                        $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE id = $room_id");
+                        $rs = mysqli_fetch_assoc($rs);
                         $data["data"] = render_messages($room_id, $mark_message);
                         $data["room_id"] = $room_id;
+                        if ($rs["type"] == "per_to_per") {
+                            $list_member = json_decode($rs["member_list"]);
+                            for ($i = 0; $i < count($list_member); $i++) {
+                                $id = $list_member[$i];
+                                if ($id != $id_user) {
+                                    $rs = mysqli_query($conn, "SELECT * FROM table_account WHERE id = $id");
+                                    $rs = mysqli_fetch_assoc($rs);
+                                    $data["name_room"] = $rs["first_name"] . " " . $rs["last_name"];
+                                }
+                            }
+                        } else {
+                            $data["name_room"] = $rs["name_room"];
+                        }
                         $_SESSION["thread_id"] = $room_id;
                     }
                 } else {
@@ -51,6 +66,21 @@ if (isset($_GET["action"])) {
         } else {
             $data["status"] = false;
             $data["msg"] = "Unknow room id or type.";
+        }
+    } elseif ($action == "get_list_thread") {
+        include_once("../_connect.php");
+        $id_user = $_SESSION["id"];
+        if (check_user_login()) {
+            $mark_message = null;
+            if (isset($_GET["next_page"])) {
+                $mark_message = mysqli_real_escape_string($conn, base64_decode($_GET["next_page"]));
+            }
+            $data["status"] = true;
+            $data["data"] = array();
+            $data["data"] = render_list_thread($id_user, $mark_message);
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Please login againt.";
         }
     } elseif ($action == "send_message") {
         if (isset($_POST["room_id"]) && isset($_POST["message"])) {

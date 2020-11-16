@@ -15,7 +15,7 @@ function list_user_loader(id) {
                 toastr.error(e.msg);
             e = e.data;
             for (i = 0; i < e.length; i++) {
-                object.append('<div class="user_room room_chat" id="user_' + e[i].id + '" attr_for_type="user" attr_for_id="' + e[i].id + '"><div class="d-inline-block align-middle mr-2"><img src="' + e[i]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + e[i]["fullname"] + '</h4><small>{{Tin nhắn cuối cùng}}</small></div></div>')
+                object.append('<div class="user_room room_chat" id="user_' + e[i].id + '" attr_for_type="user" attr_for_id="' + e[i].id + '"><div class="d-inline-block align-middle mr-2"><img src="' + e[i]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + e[i]["fullname"] + '</h4></div></div>');
             }
         },
         error: function(e) {
@@ -23,6 +23,42 @@ function list_user_loader(id) {
             error(e);
         }
     })
+}
+
+function list_thread(id) {
+    var object = $(id);
+    $.ajax({
+        url: "/moddle/message.php?action=get_list_thread",
+        success: function(e) {
+            delete_loader_bar(id);
+            e = JSON.parse(e);
+            if (e.status == false)
+                toastr.error(e.msg);
+            e = e.data;
+            for (i = 0; i < e.length; i++) {
+                object.append(render_message_status_text(e[i]))
+            }
+        },
+        error: function(e) {
+            delete_loader_bar(id);
+            error(e);
+        }
+    })
+}
+
+function render_message_status_text(data) {
+    try {
+        if (data["message"].type == "no_message")
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small class="deleted_ms">[No message]</small></div></div>';
+        else if (data["message"].type == "deleted")
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small class="deleted_ms">[Message deleted]</small></div></div>';
+        else if (data["message"].file != null)
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small class="deleted_ms">[Sent a attachment]</small></div></div>';
+        else
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small>' + data["message"]["message_text"] + '</small></div></div>';
+    } catch (e) {
+
+    }
 }
 
 function error(e) {
@@ -201,22 +237,28 @@ function load_data_message(id, room_id, type, hash_page, scroll) {
             if (e.status) {
                 scrolling = false;
                 $("#title_message").html(e.name_room);
-                if (e.data.length > 0) {
-                    object.find("#no_message").remove();
-                    for (i = 0; i < e.data.length; i++) {
-                        render_message(e.data[i], object);
-                        if (i == e.data.length - 1) {
-                            if (object.hasScrollBar() == false) {
-                                scrolling = true;
-                                hash_page = btoa($($(".message_list>div")[0]).attr("attr_for_time"));
-                                load_data_message(id, room_id, type, hash_page, scroll);
-                            } else if (scroll == true)
-                                $('.message_list').scrollTop($('.message_list')[0].scrollHeight);
+                    if (e.data.length > 0) {
+                        object.find("#no_message").remove();
+                        if (e.data.length == 1) {
+                            render_message(e.data[0], object);
+                        } else {
+                            for (i = 0; i < e.data.length; i++) {
+                                render_message(e.data[i], object);
+                                if (i == e.data.length - 1) {
+                                    if (object.hasScrollBar() == false) {
+                                        scrolling = true;
+                                        hash_page = btoa($($(".message_list>div")[0]).attr("attr_for_time"));
+                                        load_data_message(id, room_id, type, hash_page, scroll);
+                                    } else if (scroll == true)
+                                        $('.message_list').scrollTop($('.message_list')[0].scrollHeight);
+                                }
+                            }
                         }
+                    } else {
+                        if (scroll == true && hash_page == undefined)
+                            object.html('<div class="center_text_absolute" id="no_message">No messages here!</div>');
+                        scrolling = true;
                     }
-                } else {
-                    scrolling = true;
-                }
             } else {
                 scrolling = false;
                 toastr.error("Error when start chat, please try againt.");
@@ -382,7 +424,6 @@ function create_badge_user(id, data) {
     object.append('<div class="d-inline-block badged_user"><div class="d-flex rounded-pill p-2 border align-items-center"><img src="' + data["avatar"] + '" width="30px" height="30px" class="rounded-circle"/><div class="ml-2">' + data["fullname"] + '</div><div class="ml-2 close_badge cursor-pointer" aria-hidden="true" attr_for_id="' + data["id"] + '">×</div></div></div>');
 }
 $(document).ready(function() {
-    list_user_loader(".list_user");
     $("#search_email").on('keypress', async function(e) {
         if (e.which == 13) {
             loader_bar("#modal-form>div");
@@ -414,6 +455,21 @@ $(document).ready(function() {
             return false;
         }
     });
+    $("#list_user_tab").click(function() {
+        $(this).find("a").tab("show");
+        $(".active_list").removeClass("active");
+        if ($(".list_user").find(".user_room").length == 0) {
+            list_user_loader(".list_user");
+        }
+    });
+    $("#list_recent_tab").click(function() {
+        $(".active_list").removeClass("active");
+        $(this).find("a").tab("show");
+        if ($(".list_recent").find(".user_room").length == 0) {
+            list_thread(".list_recent");
+        }
+    })
+    list_thread(".list_recent");
     $("#modal-form").on("click", ".close_badge", function() {
         var current_value = JSON.parse($("#list_user").val());
         var id = $(this).attr("attr_for_id");
@@ -470,7 +526,8 @@ $(document).ready(function() {
     $("#btn-like").click(function() {
         send_message('[like]', window.room_id);
     });
-    $(".list_user").on("click", ".room_chat", function() {
+    $(".list_user, .list_recent").on("click", ".room_chat", function() {
+        $(".message_list").html('');
         load_data_message(".message_list", $(this).attr("attr_for_id"), $(this).attr("attr_for_type"));
         $(".room_chat").removeClass("room_active");
         $(this).addClass("room_active");
@@ -541,7 +598,7 @@ $(function() {
             $("#seen_mark").attr({ "id": "" }).find('p').remove();
             $(".from_me:last-child").attr({ "id": "seen_mark" }).find('.message_body').append('<p class="small width_100 text-right">Đã xem</p>');
         } else if (message.type == "delete_message") {
-            if (window.room_id == message.room_id){
+            if (window.room_id == message.room_id) {
                 $(".message[attr_for_id='" + message["message_id"] + "']").find(".message_outer").find('div:nth-of-type(1)').remove();
                 $(".message[attr_for_id='" + message["message_id"] + "']").find(".message_outer").prepend('<div class="message_content rounded deleted_ms">[Message deleted]</div>');
                 $(".message[attr_for_id='" + message["message_id"] + "']").find('.trash').remove();
