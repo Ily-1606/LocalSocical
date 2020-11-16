@@ -431,7 +431,7 @@ $(document).ready(function() {
             res_user = JSON.parse(res_user);
             if (res_user.status) {
                 var res_user_id = res_user["data"][0];
-                var current_value = JSON.parse($("#list_user").val());
+                var current_value = JSON.parse($("input#list_user").val());
                 if (current_value.length == 0) {
                     current_value.push(res_user_id["id"]);
                     $("#list_user").val(JSON.stringify(current_value));
