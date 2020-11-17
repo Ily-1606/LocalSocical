@@ -19,7 +19,7 @@ function get_single_message($row)
     $arr["user_id"] = $row["user_id"];
     $arr["id_message"] = $row["id"];
     $arr["type"] = "show";
-    if($row["hidden"] == null)
+    if ($row["hidden"] == null)
         $arr["type"] = "no_message";
     else if ($row["hidden"] == 0)
         $arr["message_text"] = $row["message_text"];
@@ -65,7 +65,7 @@ function render_list_thread($id_user, $next_page = null)
         $arr = array();
         $arr["list_user"] = array();
         $arr["message"] = array();
-        $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE thread_id = ".$row["id"]." ORDER BY create_time DESC LIMIT 1");
+        $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE thread_id = " . $row["id"] . " ORDER BY create_time DESC LIMIT 1");
         $rs = mysqli_fetch_assoc($rs);
         $arr["message"] = get_single_message($rs);
         $info_user = array();
@@ -91,6 +91,12 @@ function render_list_thread($id_user, $next_page = null)
         array_push($data, $arr);
     }
     return $data;
+}
+function update_last_thread($room_id)
+{
+    global $conn;
+    $now = time();
+    return mysqli_query($conn, "UPDATE table_thread SET update_time = $now WHERE id = $room_id");
 }
 function check_user_in_room($room_id)
 {

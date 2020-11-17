@@ -97,6 +97,7 @@ if (isset($_GET["action"])) {
                         $rs = mysqli_query($conn, "INSERT INTO table_messages (`thread_id`,`message_text`,`user_send`) VALUES ($room_id,'$message',$id_user)");
                         if ($rs) {
                             $id_message = mysqli_insert_id($conn);
+                            update_last_thread($room_id);
                             $rs = mysqli_query($conn, "SELECT table_account.id AS user_id, table_account.avatar, table_account.first_name, table_account.last_name, table_messages.* FROM `table_messages` INNER JOIN table_account ON table_messages.user_send = table_account.id WHERE table_messages.id = $id_message");
                             $rs = mysqli_fetch_assoc($rs);
                             $array_m = array();
@@ -157,6 +158,7 @@ if (isset($_GET["action"])) {
                                 $data["room_id"] = mysqli_insert_id($conn);
                                 $_SESSION["thread_id"] = $data["room_id"];
                                 $data["msg"] = "Create room success.";
+                                update_last_thread($data["room_id"]);
                             } else {
                                 $data["msg"] = "Error when create group chat.";
                                 $data["status"] = false;
@@ -221,6 +223,7 @@ if (isset($_GET["action"])) {
                         $array_m["type"] = "delete_message";
                         $array_m["room_id"] = $rs["thread_id"];
                         $array_m["message_id"] = $id_message;
+                        update_last_thread($rs["thread_id"]);
                         $info_thread = mysqli_query($conn, "SELECT * FROM table_thread WHERE id = " . $rs["thread_id"]);
                         if (mysqli_num_rows($info_thread)) {
                             $info_thread = mysqli_fetch_assoc($info_thread);

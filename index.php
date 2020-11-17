@@ -54,7 +54,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                 <div class="row font-weight-bold mt-2 text-white">
                     <div class="col text-center">
                         <a href="#list_recent" id="list_recent_tab" class="pb-1 border-bottom active_list active" style="border-bottom-width: 2px!important;" aria-controls="list_recent" role="tab" data-toggle="tab" aria-selected="true">
-                            Recent
+                            Recently
                         </a>
                     </div>
                     <div class="col text-center">

@@ -3,7 +3,8 @@
         return this.get(0).scrollHeight > this.height();
     }
 })(jQuery);
-
+var notify_audio = new Audio("/assets/sound/notify.ogg");
+var notify_typing = new Audio("/assets/sound/typing.ogg");
 function list_user_loader(id) {
     var object = $(id);
     $.ajax({
@@ -49,13 +50,28 @@ function list_thread(id) {
 function render_message_status_text(data) {
     try {
         if (data["message"].type == "no_message")
-            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small class="deleted_ms">[No message]</small></div></div>';
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><div class="replace_text"><small class="deleted_ms">[No message]</small></div></div></div>';
         else if (data["message"].type == "deleted")
-            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small class="deleted_ms">[Message deleted]</small></div></div>';
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><div class="replace_text"><small class="deleted_ms">[Message deleted]</small></div></div></div>';
         else if (data["message"].file != null)
-            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small class="deleted_ms">[Sent a attachment]</small></div></div>';
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><div class="replace_text"><small class="deleted_ms">[Sent a attachment]</small></div></div></div>';
         else
-            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><small>' + data["message"]["message_text"] + '</small></div></div>';
+            return '<div class="user_room room_chat ' + (window.room_id == data["list_user"][0].room_id ? "room_active" : "") + '" id="user_' + data["list_user"][0].room_id + '" attr_for_type="room" attr_for_id="' + data["list_user"][0].room_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + data["list_user"][0]["avatar"] + '" width="60px" height="60px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + data["list_user"][0]["fullname"] + '</h4><div class="replace_text"><small>' + data["message"]["message_text"] + '</small></div></div></div>';
+    } catch (e) {
+
+    }
+}
+
+function render_last_message(data) {
+    try {
+        if (data.type == "no_message")
+            return '<small class="deleted_ms">[No message]</small>';
+        else if (data.type == "deleted")
+            return '<small class="deleted_ms">[Message deleted]</small>';
+        else if (data.file != null)
+            return '<small class="deleted_ms">[Sent a attachment]</small>';
+        else
+            return '<small>' + data["message_text"] + '</small>';
     } catch (e) {
 
     }
@@ -180,6 +196,7 @@ function append_render_message(e, object) {
             time = new Date().getTime();
             if (who_el.length == 0) {
                 object.append('<div class="message row col-12 justify-content-start mt-2" id="typing_' + e.info_user.user_id + '" attr_for_user="' + e.info_user.user_id + '" attr_for_time="' + time + '"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div id="wave"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div></div>');
+                notify_typing.play();
             } else {
                 who_el = object.find("#typing_" + e.info_user.user_id);
                 who_el.attr("attr_for_time", time);
@@ -193,6 +210,8 @@ function append_render_message(e, object) {
             }, 5000);
         }
     } else {
+        notify_audio.play();
+        $("#list_recent .user_room[attr_for_id='"+e.room_id+"'] .replace_text").html(render_last_message(e.info_user));
         if (e.info_user.user_id == window.user_id) {
             if (e.info_user.file != null) {
                 if (check_type_file(e.info_user.file) == "image")
@@ -237,28 +256,28 @@ function load_data_message(id, room_id, type, hash_page, scroll) {
             if (e.status) {
                 scrolling = false;
                 $("#title_message").html(e.name_room);
-                    if (e.data.length > 0) {
-                        object.find("#no_message").remove();
-                        if (e.data.length == 1) {
-                            render_message(e.data[0], object);
-                        } else {
-                            for (i = 0; i < e.data.length; i++) {
-                                render_message(e.data[i], object);
-                                if (i == e.data.length - 1) {
-                                    if (object.hasScrollBar() == false) {
-                                        scrolling = true;
-                                        hash_page = btoa($($(".message_list>div")[0]).attr("attr_for_time"));
-                                        load_data_message(id, room_id, type, hash_page, scroll);
-                                    } else if (scroll == true)
-                                        $('.message_list').scrollTop($('.message_list')[0].scrollHeight);
-                                }
+                if (e.data.length > 0) {
+                    object.find("#no_message").remove();
+                    if (e.data.length == 1) {
+                        render_message(e.data[0], object);
+                    } else {
+                        for (i = 0; i < e.data.length; i++) {
+                            render_message(e.data[i], object);
+                            if (i == e.data.length - 1) {
+                                if (object.hasScrollBar() == false) {
+                                    scrolling = true;
+                                    hash_page = btoa($($(".message_list>div")[0]).attr("attr_for_time"));
+                                    load_data_message(id, room_id, type, hash_page, scroll);
+                                } else if (scroll == true)
+                                    $('.message_list').scrollTop($('.message_list')[0].scrollHeight);
                             }
                         }
-                    } else {
-                        if (scroll == true && hash_page == undefined)
-                            object.html('<div class="center_text_absolute" id="no_message">No messages here!</div>');
-                        scrolling = true;
                     }
+                } else {
+                    if (scroll == true && hash_page == undefined)
+                        object.html('<div class="center_text_absolute" id="no_message">No messages here!</div>');
+                    scrolling = true;
+                }
             } else {
                 scrolling = false;
                 toastr.error("Error when start chat, please try againt.");
