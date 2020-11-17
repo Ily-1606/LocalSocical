@@ -44,7 +44,12 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                         <div class="col-3 text-left">
                             <img src="/assets/img/LG.png" width="100px">
                         </div>
-                        <div class="col-9 h4 text-center" id="title_message"></div>
+                        <div class="col-9 h4 text-center">
+                            <span id="title_message" class="text-white"></span>
+                            <span id="setting" class="text-white float-right">
+                                <img src="/assets/img/cog.svg" width="30px" height="30px" />
+                            </span>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -64,16 +69,16 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                     </div>
                 </div>
                 <div class="mt-4 ml-2">
-                <div class="list_user tab-pane fade" role="tabpanel" id="list_user">
-                    <div class="loader bar">
-                        <div></div>
+                    <div class="list_user tab-pane fade" role="tabpanel" id="list_user">
+                        <div class="loader bar">
+                            <div></div>
+                        </div>
                     </div>
-                </div>
-                <div class="list_recent tab-pane fade in active show" role="tabpanel" id="list_recent">
-                    <div class="loader bar">
-                        <div></div>
+                    <div class="list_recent tab-pane fade in active show" role="tabpanel" id="list_recent">
+                        <div class="loader bar">
+                            <div></div>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="user_setting border-top">
                     <div class="user_room">
@@ -82,7 +87,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                         </div>
                         <div class="d-inline-block align-middle">
                             <h4><?php echo $account["first_name"] . " " . $account["last_name"] ?></h4>
-                            <small><a href="/logout.php">Đăng xuất</a></small>
+                            <small><a href="/logout.php">Log out</a></small>
                         </div>
                     </div>
                     <div class="add_group" data-toggle="modal" data-target="#modal-form">
@@ -99,7 +104,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                 <div class="input_chat row col-12 border-top">
                     <div class="col-9">
                         <div class="submit_form">
-                            <input type="text" name="chat_" placeholder="Nội dung tin nhắn..." class="form-control input_s" id="chat_message">
+                            <input type="text" name="chat_" placeholder="Enter message..." class="form-control input_s" id="chat_message">
                         </div>
                     </div>
                     <div class="col-3 row align-items-center text-right justify-content-end">
@@ -114,50 +119,6 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                 </div>
             </div>
         </div>
-        <section class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content modal-popup">
-
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="modal-title">
-                                        <h2>Create group</h2>
-                                        <img src="/assets/img/LG.png" width="100px">
-                                    </div>
-                                    <div class="tab-pane active" id="create_group">
-                                        <div class="submit_form">
-                                            <input type="text" class="form-control" name="name_group" id="name_group" placeholder="Group name" required>
-                                            <input type="text" class="form-control" name="email" id="search_email" placeholder="Enter email to search" required>
-                                            <input type="hidden" name="list_user" value="[]" id="list_user" />
-                                            <div class="text-white text-left" id="show_list_user"></div>
-                                            <div class="row align-items-center">
-                                                <div class="col">
-                                                    <input name="captcha" type="text" placeholder="Enter result" id="captcha" class="form-control">
-                                                </div>
-                                                <div class="col">
-                                                    <img src="/captcha.php" class="recaptcha_form" />
-                                                </div>
-                                            </div>
-                                            <button class="form-control submit_form_btn" id="create_room">Create</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
     </body>
     <?php include("footer.php"); ?>
     <script src="/assets/js/chat.js" type="text/javascript"></script>

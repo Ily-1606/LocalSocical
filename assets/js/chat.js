@@ -5,6 +5,7 @@
 })(jQuery);
 var notify_audio = new Audio("/assets/sound/notify.ogg");
 var notify_typing = new Audio("/assets/sound/typing.ogg");
+
 function list_user_loader(id) {
     var object = $(id);
     $.ajax({
@@ -152,6 +153,60 @@ function confirm_modal(body, callback) {
     })
 }
 
+function create_modal(header, body, cancel, confirm, cancel_fn, confirm_fn, some_fn) {
+    var id_modal = "modal_" + new Date().getTime();
+    var html = '<section class="modal fade" id="' + id_modal + '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">' +
+        '<div class="modal-dialog modal-lg">' +
+        '<div class="modal-content modal-popup">' +
+        '<div class="modal-header">' +
+        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+        '<span aria-hidden="true">&times;</span>' +
+        '</button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+        '<div class="container-fluid">' +
+        '<div class="row">' +
+        '<div class="col-md-12 col-sm-12">' +
+        '<div class="modal-title">' +
+        '<h2>' + header + '</h2>' +
+        '</div>' +
+        '<div class="tab-pane active" id="">' +
+        '<div class="submit_form text-white text-left">' +
+        body +
+        '<div class="row">' +
+        (cancel == undefined ? '' : '<div class="col">' +
+            '<button class="form-control" id="cancel_' + id_modal + '">' + cancel + '</button>' +
+            '</div>') +
+        (confirm == undefined ? '' : '<div class="col">' +
+            '<button class="form-control submit_form_btn" id="confirm_' + id_modal + '">' + confirm + '</button>' +
+            '</div>') +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</section>';
+    $("body").append(html);
+    $(function() {
+        $("#" + id_modal).on("hidden.bs.modal", function() {
+            $(this).remove();
+        });
+        $("#" + id_modal).modal({ "show": true });
+        $("#cancel_" + id_modal).click(function() {
+            cancel_fn(id_modal);
+        });
+        $("#confirm_" + id_modal).click(function() {
+            confirm_fn(id_modal);
+        });
+        if (some_fn != undefined)
+            some_fn(id_modal);
+    })
+}
+
 function render_message(e, object) {
     if (e.ower_user == "me") {
         if (e.type == "deleted") {
@@ -211,7 +266,7 @@ function append_render_message(e, object) {
         }
     } else {
         notify_audio.play();
-        $("#list_recent .user_room[attr_for_id='"+e.room_id+"'] .replace_text").html(render_last_message(e.info_user));
+        $("#list_recent .user_room[attr_for_id='" + e.room_id + "'] .replace_text").html(render_last_message(e.info_user));
         if (e.info_user.user_id == window.user_id) {
             if (e.info_user.file != null) {
                 if (check_type_file(e.info_user.file) == "image")
@@ -443,7 +498,7 @@ function create_badge_user(id, data) {
     object.append('<div class="d-inline-block badged_user"><div class="d-flex rounded-pill p-2 border align-items-center"><img src="' + data["avatar"] + '" width="30px" height="30px" class="rounded-circle"/><div class="ml-2">' + data["fullname"] + '</div><div class="ml-2 close_badge cursor-pointer" aria-hidden="true" attr_for_id="' + data["id"] + '">×</div></div></div>');
 }
 $(document).ready(function() {
-    $("#search_email").on('keypress', async function(e) {
+    $("body").on('keypress', "#search_email", async function(e) {
         if (e.which == 13) {
             loader_bar("#modal-form>div");
             let res_user = await search_user($(this).val());
@@ -489,7 +544,7 @@ $(document).ready(function() {
         }
     })
     list_thread(".list_recent");
-    $("#modal-form").on("click", ".close_badge", function() {
+    $("body").on("click", ".close_badge", function() {
         var current_value = JSON.parse($("#list_user").val());
         var id = $(this).attr("attr_for_id");
         for (i = 0; i < current_value; i++) {
@@ -500,30 +555,6 @@ $(document).ready(function() {
             }
         }
         $(this).parents(".badged_user").remove();
-    });
-    $("#create_room").click(function() {
-        $.ajax({
-            url: "/moddle/message.php?action=create_room",
-            method: "POST",
-            data: "name_group=" + $("#name_group").val() + "&list_user=" + $("#list_user").val() + "&captcha=" + $("#captcha").val(),
-            beforeSend: function(e) {
-                loader_bar("#modal-form>div");
-            },
-            success: function(e) {
-                $(".recaptcha_form").attr("src", "/captcha.php?v=" + new Date().getTime());
-                delete_loader_bar("#modal-form>div");
-                e = JSON.parse(e);
-                if (e.status) {
-                    window.location.href = "/index.php?thread_id=" + e.room_id;
-                } else {
-                    toastr.error(e.msg);
-                }
-            },
-            error: function(e) {
-                delete_loader_bar("#modal-form>div");
-                error(e);
-            }
-        })
     });
     last_typing = new Date().getTime();
     $("#chat_message").on('keypress', function(e) {
@@ -539,7 +570,6 @@ $(document).ready(function() {
         }
     });
     $("#file").change(function() {
-        console.info($(this)[0]);
         create_modal_media($(this)[0].files[0]);
     })
     $("#btn-like").click(function() {
@@ -561,6 +591,96 @@ $(document).ready(function() {
                 load_data_message(".message_list", window.room_id, "room", hash_page);
             }
         }
+    });
+    $("#setting").click(function() {
+        create_modal("Setting", '<div class="form-group">' +
+            '<button class="form-control submit_form_btn" id="manage_modal">Manage member</button>' +
+            '<label for="change_name">Change name</label>' +
+            '<input type="text" class="form-control" id="change_name" placeholder="Enter new name">' +
+            '</div><div class="form-group">' +
+            '<label for="add_user">Add user</label>' +
+            '<input type="text" class="form-control" id="search_email" placeholder="Press enter to search">' +
+            '<input type="hidden" name="list_user" value="[]" id="list_user" />' +
+            '<div class="text-white" id="show_list_user"></div>' +
+            '</div><small class="text-muted">Leave it blank if not changed</small>' +
+            '<div class="row"><div class="col-12"></div></div>', "Leave group", "Confirm",
+            function(id_modal) {
+                loader_bar("#" + id_modal + ">div");
+                $.ajax({
+                    url: "/moddle/message.php?action=leave_room",
+                    method: "POST",
+                    data: "room_id=" + window.room_id,
+                    success: function(e) {
+                        delete_loader_bar("#" + id_modal + ">div");
+                        e = JSON.parse(e);
+                        if (e.status) {
+                            toastr.success(e.msg);
+                            $("#" + id_modal).modal("hide");
+                            window.location.href = "/";
+                        } else
+                            toastr.error(e.msg);
+                    },
+                    error: function(e) {
+                        delete_loader_bar("#" + id_modal + ">div");
+                        error(e);
+                    }
+                })
+            },
+            function(id_modal) {
+                loader_bar("#" + id_modal + ">div");
+                $.ajax({
+                    url: "/moddle/message.php?action=update_group",
+                    method: "POST",
+                    data: "room_id=" + window.room_id + "&name_room=" + $("#change_name").val() + "&add_user=" + $("#list_user").val(),
+                    success: function(e) {
+                        delete_loader_bar("#" + id_modal + ">div");
+                        e = JSON.parse(e);
+                        if (e.status) {
+                            toastr.success(e.msg);
+                            $("#" + id_modal).modal("hide");
+                            //window.location.href = "/";
+                        } else
+                            toastr.error(e.msg);
+                    },
+                    error: function(e) {
+                        delete_loader_bar("#" + id_modal + ">div");
+                        error(e);
+                    }
+                });
+
+            },
+            function(id_modal) {
+                $("#manage_modal").click(function(e) {
+                    loader_bar("#" + id_modal + ">div");
+                    $.ajax({
+                        url: "/moddle/message.php?action=get_user_in_room",
+                        method: "POST",
+                        data: "room_id=" + window.room_id,
+                        success: function(e) {
+                            delete_loader_bar(("#" + id_modal + ">div"));
+                            e = JSON.parse(e);
+                            if (e.status) {
+                                $("#" + id_modal).modal("hide");
+                                var html = "";
+                                for (i = 0; i < e.data.length; i++) {
+                                    html += '<div class="user_room p-0 mt-2" attr_for_id="' + e.data[i].user_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + e.data[i].avatar + '" width="50px" height="50px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + e.data[i].fullname + '</h4></div><div class="d-inline-block align-middle float-right"><img src="' + (e.data[i]["administrator"] ? "/assets/img/admin.svg" : "/assets/img/user.svg") + '" width="30px" height="30px"></div></div>';
+                                    if (i == e.data.length - 1) {
+                                        create_modal("Memebers list", '<div class="max_height_500">' + html + '</div>', "Cancel", undefined, function(id_modal) {
+                                            $("#" + id_modal).modal("hide");
+                                        }, undefined, undefined);
+                                    }
+                                }
+                            } else {
+                                toastr.error(e.msg);
+                            }
+                        },
+                        error: function(e) {
+                            error(e);
+                            delete_loader_bar(("#" + id_modal + ">div"));
+                        }
+                    })
+                });
+            });
     });
     $("body").on("click", ".trash", function() {
         var id_message = $(this).parents(".message").attr("attr_for_id");
@@ -586,12 +706,52 @@ $(document).ready(function() {
             })
         });
     });
+    $(".add_group").click(function() {
+        create_modal("Create group", '<input type="text" class="form-control" name="name_group" id="name_group" placeholder="Group name" required>' +
+            '<input type="text" class="form-control" name="email" id="search_email" placeholder="Enter email to search" required>' +
+            '<input type="hidden" name="list_user" value="[]" id="list_user" />' +
+            '<div class="text-white text-left" id="show_list_user"></div>' +
+            '<div class="row align-items-center">' +
+            '<div class="col">' +
+            '<input name="captcha" type="text" placeholder="Enter result" id="captcha" class="form-control">' +
+            '</div>' +
+            '<div class="col">' +
+            '<img src="/captcha.php" class="recaptcha_form" />' +
+            '</div>' +
+            '</div>', undefined, "Create", undefined,
+            function(id_modal) {
+                $.ajax({
+                    url: "/moddle/message.php?action=create_room",
+                    method: "POST",
+                    data: "name_group=" + $("#name_group").val() + "&list_user=" + $("#list_user").val() + "&captcha=" + $("#captcha").val(),
+                    beforeSend: function(e) {
+                        loader_bar("#" + id_modal + ">div");
+                    },
+                    success: function(e) {
+                        $(".recaptcha_form").attr("src", "/captcha.php?v=" + new Date().getTime());
+                        delete_loader_bar("#" + id_modal + ">div");
+                        e = JSON.parse(e);
+                        if (e.status) {
+                            window.location.href = "/index.php?thread_id=" + e.room_id;
+                        } else {
+                            toastr.error(e.msg);
+                        }
+                    },
+                    error: function(e) {
+                        delete_loader_bar("#" + id_modal + ">div");
+                        error(e);
+                    }
+                })
+            },
+            function(id_modal) {
+
+            })
+    });
 });
 document.onpaste = function(evt) {
     const dT = evt.clipboardData || window.clipboardData;
     if (dT.files.length > 0) {
         const file = dT.files[0];
-        console.info(file);
         create_modal_media(file);
     }
 };

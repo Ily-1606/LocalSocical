@@ -140,3 +140,7 @@ body {
 .tab-pane.active {
     display: block;
 }
+.max_height_500{
+    max-height: 500px;
+    overflow: auto;
+}

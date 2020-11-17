@@ -183,6 +183,104 @@ if (isset($_GET["action"])) {
             $data["status"] = false;
             $data["msg"] = "List users not be empty.";
         }
+    } elseif ($action == "leave_room") {
+        if (isset($_POST["room_id"])) {
+            if (check_user_login()) {
+                $id_user = $_SESSION["id"];
+                include_once("../_connect.php");
+                $room_id = mysqli_real_escape_string($conn, $_POST["room_id"]);
+                $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE JSON_SEARCH(adminnitranstor, 'one', '$id_user') IS NOT NULL AND type = 'group' AND id = '$room_id'");
+                if (mysqli_num_rows($rs) == 0) {
+                    $rs = mysqli_query($conn, "UPDATE table_thread 
+                SET member_list = JSON_REMOVE(member_list, JSON_UNQUOTE(JSON_SEARCH(member_list, 'one', '$id_user')))
+                WHERE JSON_SEARCH(member_list, 'one', '$id_user') IS NOT NULL AND type = 'group' AND id = '$room_id'");
+                    if ($rs) {
+                        $data["status"] = true;
+                        $data["room_id"] = $room_id;
+                        unset($_SESSION["thread_id"]);
+                        $data["msg"] = "Leave room success.";
+                        //update_last_thread($data["room_id"]);
+                    } else {
+                        $data["msg"] = "Error when leave group chat.";
+                        $data["status"] = false;
+                    }
+                } else {
+                    $data["msg"] = "Administrator can't leave group.";
+                    $data["status"] = false;
+                }
+            } else {
+                $data["msg"] = "Please login againt.";
+                $data["status"] = false;
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Unknow room id.";
+        }
+    } elseif ($action == "update_group") {
+        if (isset($_POST["room_id"]) && isset($_POST["name_room"]) && isset($_POST["add_user"])) {
+            if (check_user_login()) {
+                $id_user = $_SESSION["id"];
+                include_once("../_connect.php");
+                $room_id = mysqli_real_escape_string($conn, $_POST["room_id"]);
+                $name_room = mysqli_real_escape_string($conn, htmlspecialchars($_POST["name_room"]));
+                $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE JSON_SEARCH(adminnitranstor, 'one', '$id_user') IS NOT NULL AND type = 'group' AND id = '$room_id'");
+                if (mysqli_num_rows($rs)) {
+                    $rs = mysqli_fetch_assoc($rs);
+                    $member_list = json_decode($rs["member_list"]);
+                    $sub_query = "";
+                    $list_user = json_decode($_POST["add_user"]);
+                    if (is_array($list_user)) {
+                        if (count($list_user)) {
+                            $list_user = array_unique($list_user);
+                            $big_query = "SELECT id FROM table_account WHERE id = " . $list_user[0];
+                            for ($i = 1; $i < count($list_user); $i++) {
+                                $big_query .= " OR id = " . $list_user[$i];
+                            }
+                            $list_user = array();
+                            $rs_list_user = mysqli_query($conn, $big_query);
+                            while ($row = mysqli_fetch_assoc($rs_list_user)) {
+                                array_push($list_user, $row["id"]);
+                            }
+                            if (count($list_user)) {
+                                for ($i = 0; $i < count($list_user); $i++) {
+                                    if (in_array($list_user[$i], $member_list) == false) {
+                                        array_push($member_list, $list_user[$i]);
+                                    }
+                                }
+                                $member_list = json_encode($member_list);
+                                $sub_query = "SET `member_list` = '$member_list'";
+                            }
+                        }
+                    }
+                    if ($name_room != "") {
+                        if ($sub_query == "")
+                            $sub_query = "SET `name_room` = '$name_room'";
+                        else
+                            $sub_query .= ", `name_room` = '$name_room'";
+                    }
+                    $rs = mysqli_query($conn, "UPDATE table_thread $sub_query WHERE id = '$room_id'");
+                    if ($rs) {
+                        $data["status"] = true;
+                        $data["room_id"] = $room_id;
+                        unset($_SESSION["thread_id"]);
+                        $data["msg"] = "Update group success.";
+                        //update_last_thread($data["room_id"]);
+                    } else {
+                        $data["msg"] = "Error when update group chat.";
+                        $data["status"] = false;
+                    }
+                } else {
+                    $data["msg"] = "Administrator can edit.";
+                    $data["status"] = false;
+                }
+            } else {
+                $data["msg"] = "Please login againt.";
+                $data["status"] = false;
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Unknow room id.";
+        }
     } elseif ($action == "ping_typing") {
         if (isset($_POST["room_id"])) {
             if (check_user_login()) {
@@ -200,6 +298,40 @@ if (isset($_GET["action"])) {
                     $info_thread = mysqli_fetch_assoc($info_thread);
                     $array_m["send_to_user"] = json_decode($info_thread["member_list"]);
                     send_wss(json_encode($array_m));
+                }
+            } else {
+                $data["msg"] = "Please login againt.";
+                $data["status"] = false;
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Unknow room id.";
+        }
+    } elseif ($action == "get_user_in_room") {
+        if (isset($_POST["room_id"])) {
+            if (check_user_login()) {
+                include_once("../_connect.php");
+                $room_id = mysqli_real_escape_string($conn, $_POST["room_id"]);
+                $array_m = array();
+                $id_user = $_SESSION["id"];
+                $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE JSON_SEARCH(member_list, 'one', '$id_user') IS NOT NULL AND type = 'group' AND id = '$room_id'");
+                if (mysqli_num_rows($rs)) {
+                    $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE type = 'group' AND id = '$room_id'");
+                    $rs = mysqli_fetch_assoc($rs);
+                    $adminnitranstor = json_decode($rs["adminnitranstor"]);
+                    $member_list = json_decode($rs["member_list"]);
+                    for ($i = 0; $i < count($member_list); $i++) {
+                        $id = $member_list[$i];
+                        $info_user = mysqli_query($conn, "SELECT * FROM table_account WHERE id = $id");
+                        $info_user = mysqli_fetch_assoc($info_user);
+                        array_push($array_m, array("user_id" => $info_user["id"], "fullname" => $info_user["first_name"] . " " . $info_user["last_name"], "avatar" => $info_user["avatar"], "administrator" => in_array($id, $adminnitranstor)));
+                    }
+                    $data["status"] = true;
+                    $data["adminnitranstor"] = in_array($id, $adminnitranstor);
+                    $data["data"] = $array_m;
+                } else {
+                    $data["msg"] = "Room id not found.";
+                    $data["status"] = false;
                 }
             } else {
                 $data["msg"] = "Please login againt.";
