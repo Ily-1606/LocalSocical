@@ -58,9 +58,110 @@ if (isset($_GET["action"])) {
             $data["status"] = false;
             $data["msg"] = "Email is invalid.";
         }
+    } elseif ($action == "get_avatar") {
+        if (isset($_GET["user_id"])) {
+            include_once("../_connect.php");
+            $user_id = mysqli_real_escape_string($conn, $_GET["user_id"]);
+            if (check_user_login()) {
+                $rs = mysqli_query($conn, "SELECT * FROM table_account WHERE id = $user_id LIMIT 1");
+                if (mysqli_num_rows($rs)) {
+                    $row = mysqli_fetch_assoc($rs);
+                    header("Location: " . $row["avatar"]);
+                    die;
+                } else {
+                    header("Location: /assets/img/male.png");
+                    die;
+                }
+            } else {
+                header("Location: /assets/img/male.png");
+                die;
+            }
+        } else {
+            header("Location: /assets/img/male.png");
+            die;
+        }
+        die;
+    } elseif ($action == "update_proflie") {
+        if (isset($_POST["old_password"]) && isset($_POST["new_password"]) && isset($_POST["re_new_password"])) {
+            include_once("../_connect.php");
+            $old_password = mysqli_real_escape_string($conn, $_POST["old_password"]);
+            $new_password = mysqli_real_escape_string($conn, $_POST["new_password"]);
+            $re_new_password = mysqli_real_escape_string($conn, $_POST["re_new_password"]);
+            if (check_user_login()) {
+                $id_user = $_SESSION["id"];
+                $rs = mysqli_query($conn, "SELECT * FROM table_account WHERE id = $id_user LIMIT 1");
+                $rs = mysqli_fetch_assoc($rs);
+                if (isset($_FILES["avatar"])) {
+                    if ($_FILES["avatar"]["error"] == 0) {
+                        $imageFileType = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
+                        if ($imageFileType == "jpg" || $imageFileType = "jpeg" || $imageFileType == "png") {
+                            $now = time();
+                            $file_name = "/storage/avatar/for_user_$id_user-$now.$imageFileType";
+                            $file_face = "/storage/face/for_user_$id_user-$now.$imageFileType";
+                            if (move_uploaded_file($_FILES["avatar"]["tmp_name"], $_SERVER["DOCUMENT_ROOT"] . "/$file_face")) {
+                                chmod($_SERVER["DOCUMENT_ROOT"]."/storage",0777);
+                                if (mysqli_query($conn, "UPDATE table_account SET face_recognition = '$file_face' WHERE id = $id_user")) {
+                                    if ($rs["face_recognition"] != NULL && file_exists("..".$rs["face_recognition"]))
+                                        unlink("..".$rs["face_recognition"]);
+                                    resize_image($_SERVER["DOCUMENT_ROOT"] . "/$file_face", "100", "100", $_SERVER["DOCUMENT_ROOT"] . "/$file_name");
+                                    if (mysqli_query($conn, "UPDATE table_account SET avatar = '$file_name' WHERE id = $id_user")) {
+                                        if($rs["avatar"] != "/assets/img/male.png" && file_exists("..".$rs["avatar"]))
+                                        unlink("..".$rs["avatar"]);
+                                        $data["status"] = true;
+                                        $data["msg"] = "Update success.";
+                                    }
+                                } else {
+                                    $data["status"] = false;
+                                    $data["msg"] = "Something went wrong.";
+                                }
+                            } else {
+                                $data["status"] = false;
+                                $data["msg"] = "Something went wrong.";
+                            }
+                        } else {
+                            $data["status"] = false;
+                            $data["msg"] = "Only upload image.";
+                        }
+                        //$img = resize_image($_FILES["av"], 200, 200);
+                    } else {
+                        $data["status"] = false;
+                        $data["msg"] = "Upload avatar failed.";
+                    }
+                }
+                if ($old_password != "" && $new_password != "" && $re_new_password != "") {
+                    $old_password = md5($old_password);
+                    if ($new_password == $re_new_password) {
+                        $new_password = md5($new_password);
+                        $rs = mysqli_query($conn, "SELECT * FROM table_account WHERE id = $id_user AND `password` = '$old_password' LIMIT 1");
+                        if (mysqli_num_rows($rs)) {
+                            $rs = mysqli_query($conn, "UPDATE table_account SET `password` = '$new_password' WHERE id = $id_user");
+                            if ($rs) {
+                                $data["status"] = true;
+                                $data["msg"] = "Update account success.";
+                            } else {
+                                $data["status"] = false;
+                                $data["msg"] = "Something went wrong.";
+                            }
+                        } else {
+                            $data["status"] = false;
+                            $data["msg"] = "Old password wrong.";
+                        }
+                    } else {
+                        $data["status"] = false;
+                        $data["msg"] = "New password and retype new password wrong.";
+                    }
+                }
+            } else {
+                $data["status"] = false;
+                $data["msg"] = "Please login againt.";
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Please enter field data.";
+        }
+    } else {
+        $data["status"] = false;
+        $data["msg"] = "Unknow this action.";
     }
-} else {
-    $data["status"] = false;
-    $data["msg"] = "Unknow this action.";
 }
 echo json_encode($data);

@@ -131,3 +131,18 @@ function send_wss($message)
     curl_close($curl);
     echo $response;
 }
+function resize_image($file, $newwidth, $newheight, $filename)
+{
+    $image_type = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    list($width, $height) = getimagesize($file);
+    $dst = imagecreatetruecolor($newwidth, $newheight);
+    if ($image_type == "jpg" || $image_type == "jpeg") {
+        $src = imagecreatefromjpeg($file);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+        imagejpeg($dst, $filename);
+    } elseif ($image_type == "png") {
+        $src = imagecreatefrompng($file);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+        imagepng($dst, $filename);
+    }
+}

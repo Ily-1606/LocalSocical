@@ -13,6 +13,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         $thread_id = $_GET["thread_id"];
         if (is_numeric($thread_id)) {
             if (check_user_in_room($thread_id) == false) {
+                unset($_SESSION["thread_id"]);
                 header("Location: /");
                 die;
             }
@@ -87,7 +88,8 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                         </div>
                         <div class="d-inline-block align-middle">
                             <h4><?php echo $account["first_name"] . " " . $account["last_name"] ?></h4>
-                            <small><a href="/logout.php">Log out</a></small>
+                            <small><a href="/logout.php">Log out</a></small> | 
+                            <small><a href="#" id="profile">Profile</a></small>
                         </div>
                     </div>
                     <div class="add_group" data-toggle="modal" data-target="#modal-form">

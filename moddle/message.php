@@ -216,6 +216,97 @@ if (isset($_GET["action"])) {
             $data["status"] = false;
             $data["msg"] = "Unknow room id.";
         }
+    } elseif ($action == "kick") {
+        if (isset($_POST["room_id"]) && isset($_POST["user_id"])) {
+            if (check_user_login()) {
+                $id = $_SESSION["id"];
+                include_once("../_connect.php");
+                $room_id = mysqli_real_escape_string($conn, $_POST["room_id"]);
+                $user_id = mysqli_real_escape_string($conn, $_POST["user_id"]);
+                $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE JSON_SEARCH(adminnitranstor, 'one', '$user_id') IS NOT NULL AND type = 'group' AND id = '$room_id'");
+                if (mysqli_num_rows($rs) == 0) {
+                    $rs = mysqli_query($conn, "UPDATE table_thread SET member_list = JSON_REMOVE(member_list, JSON_UNQUOTE(JSON_SEARCH(member_list, 'one', '$user_id'))) WHERE JSON_SEARCH(member_list, 'one', '$user_id') IS NOT NULL AND type = 'group' AND id = '$room_id'");
+                    if ($rs) {
+                        $data["status"] = true;
+                        $data["room_id"] = $room_id;
+                        unset($_SESSION["thread_id"]);
+                        $data["msg"] = "Kick member success.";
+                        //update_last_thread($data["room_id"]);
+                    } else {
+                        $data["msg"] = "Error when kick member.";
+                        $data["status"] = false;
+                    }
+                } else {
+                    $data["msg"] = "Administrator can't leave group.";
+                    $data["status"] = false;
+                }
+            } else {
+                $data["msg"] = "Please login againt.";
+                $data["status"] = false;
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Unknow room id.";
+        }
+    } elseif ($action == "change_permission") {
+        if (isset($_POST["room_id"]) && isset($_POST["user_id"])) {
+            if (check_user_login()) {
+                $id = $_SESSION["id"];
+                include_once("../_connect.php");
+                $room_id = mysqli_real_escape_string($conn, $_POST["room_id"]);
+                $user_id = mysqli_real_escape_string($conn, $_POST["user_id"]);
+                $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE JSON_SEARCH(adminnitranstor, 'one', '$id') IS NOT NULL AND type = 'group' AND id = '$room_id'");
+                if (mysqli_num_rows($rs)) {
+                    $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE type = 'group' AND id = '$room_id'"); //Check if current user is admin or member?
+                    $row = mysqli_fetch_assoc($rs);
+                    $list_admin = json_decode($row["adminnitranstor"]);
+                    if (in_array($user_id, $list_admin)) { //If admin
+                        if (count($list_admin) > 1) { //Check if me is admin, group need at least 1 administrator
+                            for ($i = 0; $i < count($list_admin); $i++) {
+                                if ($list_admin[$i] == $user_id)
+                                    unset($list_admin[$i]);
+                            }
+                            $list_admin = array_values($list_admin);
+                            $list_admin = json_encode($list_admin);
+                            $rs = mysqli_query($conn, "UPDATE table_thread SET `adminnitranstor` = '$list_admin' WHERE id = '$room_id'");
+                            if ($rs) {
+                                $data["status"] = true;
+                                $data["room_id"] = $room_id;
+                                $data["msg"] = "Edit permission success.";
+                            } else {
+                                $data["msg"] = "Error when edit permission.";
+                                $data["status"] = false;
+                            }
+                        } else {
+                            $data["status"] = false;
+                            $data["msg"] = "Group need at least 1 administrator.";
+                        }
+                    } else {   //If member
+                        array_push($list_admin, $user_id);
+                        $list_admin = array_unique($list_admin);
+                        $list_admin = json_encode($list_admin);
+                        $rs = mysqli_query($conn, "UPDATE table_thread SET `adminnitranstor` = '$list_admin' WHERE id = '$room_id'");
+                        if ($rs) {
+                            $data["status"] = true;
+                            $data["room_id"] = $room_id;
+                            $data["msg"] = "Edit permission success.";
+                        } else {
+                            $data["msg"] = "Error when edit permission.";
+                            $data["status"] = false;
+                        }
+                    }
+                } else {
+                    $data["msg"] = "Administrator can edit.";
+                    $data["status"] = false;
+                }
+            } else {
+                $data["msg"] = "Please login againt.";
+                $data["status"] = false;
+            }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Unknow room id.";
+        }
     } elseif ($action == "update_group") {
         if (isset($_POST["room_id"]) && isset($_POST["name_room"]) && isset($_POST["add_user"])) {
             if (check_user_login()) {

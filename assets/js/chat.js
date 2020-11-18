@@ -663,11 +663,57 @@ $(document).ready(function() {
                                 $("#" + id_modal).modal("hide");
                                 var html = "";
                                 for (i = 0; i < e.data.length; i++) {
-                                    html += '<div class="user_room p-0 mt-2" attr_for_id="' + e.data[i].user_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + e.data[i].avatar + '" width="50px" height="50px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + e.data[i].fullname + '</h4></div><div class="d-inline-block align-middle float-right"><img src="' + (e.data[i]["administrator"] ? "/assets/img/admin.svg" : "/assets/img/user.svg") + '" width="30px" height="30px"></div></div>';
+                                    html += '<div class="user_room p-0 mt-2" attr_for_id="' + e.data[i].user_id + '"><div class="d-inline-block align-middle mr-2"><img src="' + e.data[i].avatar + '" width="50px" height="50px" class="rounded-circle"></div><div class="d-inline-block align-middle"><h4>' + e.data[i].fullname + '</h4></div><div class="d-inline-block align-middle float-right"><img src="' + (e.data[i]["administrator"] ? "/assets/img/admin.svg" : "/assets/img/user.svg") + '" width="30px" height="30px" class="change_permission"><img src="/assets/img/logout.svg" width="30px" height="30px" style="margin-left: 15px" class="kick"></div></div>';
                                     if (i == e.data.length - 1) {
                                         create_modal("Memebers list", '<div class="max_height_500">' + html + '</div>', "Cancel", undefined, function(id_modal) {
                                             $("#" + id_modal).modal("hide");
-                                        }, undefined, undefined);
+                                        }, undefined, function(id_modal) {
+                                            $(".kick").click(function() {
+                                                $_this = $(this);
+                                                loader_bar("#" + id_modal + ">div");
+                                                $.ajax({
+                                                    url: "/moddle/message.php?action=kick",
+                                                    method: "POST",
+                                                    data: "room_id=" + window.room_id + "&user_id=" + $_this.parents(".user_room").attr("attr_for_id"),
+                                                    success: function(e) {
+                                                        delete_loader_bar("#" + id_modal + ">div");
+                                                        e = JSON.parse(e);
+                                                        if (e.status) {
+                                                            $_this.parents(".user_room").remove();
+                                                            toastr.success(e.msg);
+                                                            //window.location.href = "/";
+                                                        } else
+                                                            toastr.error(e.msg);
+                                                    },
+                                                    error: function(e) {
+                                                        delete_loader_bar("#" + id_modal + ">div");
+                                                        error(e);
+                                                    }
+                                                });
+                                            });
+                                            $(".change_permission").click(function() {
+                                                $_this = $(this);
+                                                loader_bar("#" + id_modal + ">div");
+                                                $.ajax({
+                                                    url: "/moddle/message.php?action=change_permission",
+                                                    method: "POST",
+                                                    data: "room_id=" + window.room_id + "&user_id=" + $_this.parents(".user_room").attr("attr_for_id"),
+                                                    success: function(e) {
+                                                        delete_loader_bar("#" + id_modal + ">div");
+                                                        e = JSON.parse(e);
+                                                        if (e.status) {
+                                                            toastr.success(e.msg);
+                                                            //window.location.href = "/";
+                                                        } else
+                                                            toastr.error(e.msg);
+                                                    },
+                                                    error: function(e) {
+                                                        delete_loader_bar("#" + id_modal + ">div");
+                                                        error(e);
+                                                    }
+                                                });
+                                            })
+                                        });
                                     }
                                 }
                             } else {
@@ -745,6 +791,64 @@ $(document).ready(function() {
             },
             function(id_modal) {
 
+            })
+    });
+    $("#profile").click(function() {
+        create_modal("Your profile's", '<div class="h5 mb-4">Change avatar</div>' +
+            '<div class="row align-items-center">' +
+            '<div class="col">' +
+            '<label class="drag-here border rounded p-3 text-center d-block" for="upload_avatar" style="border-style: dashed!important">Chosse file</label>' +
+            '<input name="upload_avatar" type="file" id="upload_avatar" class="d-none">' +
+            '</div>' +
+            '<div class="col">' +
+            '<img src="/moddle/user.php?action=get_avatar&user_id=' + window.user_id + '" class="rounded-circle" width="60px" height="60px" id="avatar_preview" />' +
+            '</div>' +
+            '</div>' +
+            '<div class="mt-2"><small class="text-muted">We\'ll use your avatar\'s for face recognition login.</small></div>' +
+            '<div class="h5 mt-3 mb-4">Change password</div>' +
+            '<input type="text" class="form-control" name="old_password" id="old_password" placeholder="Old password" required>' +
+            '<input type="text" class="form-control" name="new_password" id="new_password" placeholder="New password" required>' +
+            '<input type="text" class="form-control" name="re_new_password" id="re_new_password" placeholder="Retype new password" required>' +
+            '<small class="text-muted">Leave it blank if not changed</small>', "Cancel", "Update",
+            function(id_modal) {
+                $("#" + id_modal).modal("hide");
+            },
+            function(id_modal) {
+                var fd = new FormData();
+                if($("#upload_avatar")[0].files[0] != undefined)
+                fd.append('avatar', $("#upload_avatar")[0].files[0]);
+                fd.append('old_password', $("#old_password").val());
+                fd.append('new_password', $("#new_password").val());
+                fd.append('re_new_password', $("#re_new_password").val());
+                $.ajax({
+                    url: "/moddle/user.php?action=update_proflie",
+                    method: "POST",
+                    processData: false,
+                    contentType: false,
+                    data: fd,
+                    beforeSend: function(e) {
+                        loader_bar("#" + id_modal + ">div");
+                    },
+                    success: function(e) {
+                        delete_loader_bar("#" + id_modal + ">div");
+                        e = JSON.parse(e);
+                        if (e.status) {
+                            window.location.href = "/";
+                        } else {
+                            toastr.error(e.msg);
+                        }
+                    },
+                    error: function(e) {
+                        delete_loader_bar("#" + id_modal + ">div");
+                        error(e);
+                    }
+                })
+            },
+            function(id_modal) {
+                $("#upload_avatar").change(function(e) {
+                    var blob_file = URL.createObjectURL($(this)[0].files[0]);
+                    $("#avatar_preview").attr("src", blob_file);
+                });
             })
     });
 });
