@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 14, 2020 lúc 03:57 PM
+-- Thời gian đã tạo: Th10 18, 2020 lúc 07:19 PM
 -- Phiên bản máy phục vụ: 10.4.13-MariaDB
 -- Phiên bản PHP: 7.2.32
 
@@ -34,6 +34,7 @@ CREATE TABLE `table_account` (
   `email` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT '/assets/img/male.png',
+  `face_recognition` varchar(255) DEFAULT NULL,
   `phone_number` varchar(30) DEFAULT NULL,
   `gender` int(11) DEFAULT NULL,
   `create_time` timestamp NOT NULL DEFAULT current_timestamp()
@@ -43,9 +44,9 @@ CREATE TABLE `table_account` (
 -- Đang đổ dữ liệu cho bảng `table_account`
 --
 
-INSERT INTO `table_account` (`id`, `first_name`, `last_name`, `email`, `password`, `avatar`, `phone_number`, `gender`, `create_time`) VALUES
-(1, 'Nguyen', 'Nguyen', 'khuonmatdangthuong45@gmail.com', '6d590d0d8702e8132a77913bf707de45', '/assets/img/male.png', '0328267412', 1, '2020-11-07 16:21:42'),
-(2, 'Nguyễn', 'Nguyên', 'no1.ily1606@gmail.com', '6d590d0d8702e8132a77913bf707de45', '/assets/img/male.png', '0328267412', 1, '2020-11-11 14:14:45');
+INSERT INTO `table_account` (`id`, `first_name`, `last_name`, `email`, `password`, `avatar`, `face_recognition`, `phone_number`, `gender`, `create_time`) VALUES
+(1, 'Nguyen', 'Nguyen', 'khuonmatdangthuong45@gmail.com', '6d590d0d8702e8132a77913bf707de45', '/storage/avatar/for_user_1-1605723308.jpg', '/storage/face/for_user_1-1605723308.jpg', '0328267412', 1, '2020-11-07 16:21:42'),
+(2, 'Nguyễn', 'Nguyên', 'no1.ily1606@gmail.com', '6d590d0d8702e8132a77913bf707de45', '/assets/img/male.png', NULL, '0328267412', 1, '2020-11-11 14:14:45');
 
 -- --------------------------------------------------------
 
@@ -101,7 +102,24 @@ INSERT INTO `table_messages` (`id`, `thread_id`, `message_text`, `attachment`, `
 (31, 2, '30', NULL, 1, '2020-11-14 12:53:53', 1),
 (32, 2, '31', NULL, 1, '2020-11-14 12:53:54', 1),
 (33, 2, '32', NULL, 1, '2020-11-14 13:43:52', 1),
-(34, 2, '33', NULL, 1, '2020-11-14 14:08:56', 1);
+(34, 2, '33', NULL, 1, '2020-11-14 14:08:56', 1),
+(35, 4, 'Test', NULL, 1, '2020-11-16 13:41:47', 0),
+(36, 4, '[like]', NULL, 1, '2020-11-16 13:53:18', 0),
+(37, 5, 'Wow', NULL, 1, '2020-11-16 14:06:40', 0),
+(38, 5, 'Can you hear me?', NULL, 1, '2020-11-16 14:06:50', 0),
+(39, 5, '[like]', NULL, 1, '2020-11-16 14:07:09', 0),
+(40, 5, 'Test', NULL, 1, '2020-11-17 11:11:01', 1),
+(41, 5, 'Are you sure?', NULL, 1, '2020-11-17 11:21:49', 0),
+(42, 5, 'Yes', NULL, 2, '2020-11-17 11:24:00', 0),
+(43, 5, 'Aha~~~~~', NULL, 1, '2020-11-17 11:24:11', 0),
+(44, 5, 'Yub', NULL, 2, '2020-11-17 11:24:17', 0),
+(45, 5, 'Test sound', NULL, 1, '2020-11-17 11:27:53', 0),
+(46, 5, 'Yeb', NULL, 2, '2020-11-17 11:27:59', 0),
+(47, 6, 'test', NULL, 1, '2020-11-17 14:45:30', 0),
+(48, 5, 'Test', NULL, 1, '2020-11-17 14:58:44', 1),
+(49, 5, 'EZ', NULL, 1, '2020-11-18 15:51:06', 0),
+(50, 5, '[like]', NULL, 2, '2020-11-18 15:51:11', 0),
+(51, 5, NULL, '/storage/1605714692.png', 1, '2020-11-18 15:51:32', 1);
 
 -- --------------------------------------------------------
 
@@ -115,17 +133,20 @@ CREATE TABLE `table_thread` (
   `member_list` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`member_list`)),
   `adminnitranstor` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`adminnitranstor`)),
   `name_room` varchar(255) DEFAULT NULL,
-  `create_time` timestamp NOT NULL DEFAULT current_timestamp()
+  `create_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `update_time` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Đang đổ dữ liệu cho bảng `table_thread`
 --
 
-INSERT INTO `table_thread` (`id`, `type`, `member_list`, `adminnitranstor`, `name_room`, `create_time`) VALUES
-(1, 'per_to_per', '[\"1\",\"1\"]', NULL, NULL, '2020-11-12 01:35:08'),
-(2, 'per_to_per', '[\"1\",\"2\"]', NULL, NULL, '2020-11-12 01:36:38'),
-(4, 'group', '[\"1\",\"2\"]', '[\"1\"]', 'Test', '2020-11-12 14:31:34');
+INSERT INTO `table_thread` (`id`, `type`, `member_list`, `adminnitranstor`, `name_room`, `create_time`, `update_time`) VALUES
+(1, 'per_to_per', '[\"1\",\"1\"]', NULL, NULL, '2020-11-12 01:35:08', 0),
+(2, 'per_to_per', '[\"1\",\"2\"]', NULL, NULL, '2020-11-12 01:36:38', 0),
+(4, 'group', '[\"1\",\"2\"]', '[\"1\"]', 'Test', '2020-11-12 14:31:34', 0),
+(5, 'group', '[\"1\",\"2\"]', '[\"1\"]', 'LAN CHAT', '2020-11-16 14:06:34', 1605714754),
+(6, 'group', '[\"1\",\"2\"]', '[\"1\"]', 'Test2', '2020-11-17 14:45:18', 1605624330);
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -163,13 +184,13 @@ ALTER TABLE `table_account`
 -- AUTO_INCREMENT cho bảng `table_messages`
 --
 ALTER TABLE `table_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT cho bảng `table_thread`
 --
 ALTER TABLE `table_thread`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
