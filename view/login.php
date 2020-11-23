@@ -111,8 +111,48 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                                                        </div>
                                                        <button class="form-control submit_form_btn">Login</button>
                                                   </form>
-                                                  <a href="#">Login with face recognition?</a>
+                                                  <a href="#" id="login_face">Login with face recognition?</a>
                                                   </form>
+                                             </div>
+                                        </div>
+                                   </div>
+
+                              </div>
+                         </div>
+                    </div>
+
+               </div>
+          </div>
+     </section>
+     <section class="modal fade" id="modal_facerecognition" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+               <div class="modal-content modal-popup">
+
+                    <div class="modal-header">
+                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                         </button>
+                    </div>
+
+                    <div class="modal-body">
+                         <div class="container-fluid">
+                              <div class="row" style="max-height: 600px; overflow: auto">
+
+                                   <div class="col-md-12 col-sm-12">
+                                        <div class="modal-title">
+                                             <h2>Login in with face recognition</h2>
+                                             <img src="/assets/img/LG.png" width="100px">
+                                        </div>
+                                        <div class="tab-content" id="data_face">
+                                             <div class="control">
+                                                  <video id="data_camera"></video>
+                                                  <div class="text_effect"></div>
+                                             </div>
+                                             <div class="camera_snapped" style="display: none">
+                                                  <canvas id="canvas"></canvas>
+                                                  <div class="box_recognition"></div>
+                                             </div>
+                                             <div class="row" id="inner_button">
                                              </div>
                                         </div>
                                    </div>
@@ -264,6 +304,104 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                          }
                     });
                     return false;
+               });
+
+               var canvas = document.getElementById('canvas');
+               var context = canvas.getContext('2d');
+               var video = document.getElementById("data_camera");
+               window.streamLocal;
+               var img_take = null;
+
+               function stop() {
+                    window.streamLocal.getTracks().forEach(function(track) {
+                         track.stop();
+                    });
+               }
+               $("#data_face").on("click", "#snapped", function() {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    var time = 3000;
+                    $(this).addClass("disabled").prop('disabled', true);
+                    var haddle = setInterval(function() {
+                         if (time == 0) {
+                              context.drawImage(video, 0, 0);
+                              $(".camera_snapped").show();
+                              $("#data_camera").hide();
+                              $(".text_effect").text('');
+                              img_take = canvas.toDataURL("image/jpeg");
+                              $("#inner_button").html('<div class="col-3"><button class="btn btn-danger" id="reset_camera">Reset</button></div><div class="col-3"><button class="btn btn-primary" id="upload">Login</button></div>');
+                              clearInterval(haddle);
+                              stop();
+                              $("#data_camera").removeAttr("srcObject");
+                         } else {
+                              $(".text_effect").text(time / 1000);
+                              time -= 1000;
+                         }
+                    }, 1000);
+               });
+               $("#data_face").on("click", "#reset_camera", function() {
+                    start_face();
+               });
+               $("#data_face").on("click", "#upload", function() {
+                    if (img_take != null) {
+                         $("#modal_facerecognition>div").append('<div class="loader bar"><div></div></div>');
+                         $.ajax({
+                              url: "/moddle/user.php?action=login_with_facerecogniton",
+                              method: "POST",
+                              data: "file=" + btoa(img_take),
+                              success: function(e) {
+                                   $("#modal_facerecognition>div>.loader").remove();
+                                   e = JSON.parse(e);
+                                   if (e.status) {
+                                        toastr.success(e.msg);
+                                        position = e.position;
+                                        resolution = $("#canvas").attr("width") / $("#canvas").width()
+                                        resolution_h = $("#canvas").attr("height") / $("#canvas").height()
+                                        $(".box_recognition").attr("style", "top:" + position[0] / resolution_h + "px; left:" + position[3] / resolution + "px; height:" + (position[2] - position[0]) / resolution_h + "px; width: " + (position[1] - position[3]) / resolution + "px;")
+                                        setTimeout(function() {
+                                             window.location.href = "/";
+                                        }, 3000);
+                                   } else
+                                        toastr.error(e.msg);
+                              },
+                              error: function(e) {
+                                   $("#modal_facerecognition>div>.loader").remove();
+                                   console.error(e);
+                                   toastr.error("Something went wrong.");
+                              }
+                         })
+                    } else {
+                         toastr.error("Error when take screenshoot.");
+                    }
+               })
+
+               function start_face() {
+                    $("#inner_button").html('');
+                    $(".camera_snapped").hide();
+                    $("#data_camera").show();
+                    $(".box_recognition").removeAttr("style");
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                         // Not adding `{ audio: true }` since we only want video now
+                         navigator.mediaDevices.getUserMedia({
+                              video: true
+                         }).then(function(stream) {
+                              video.srcObject = stream;
+                              window.streamLocal = stream;
+                              video.play();
+                              $("#inner_button").html('<div class="col-3"><button class="btn btn-success" id="snapped">Ready</button></div>');
+                         });
+                    } else {
+                         toastr.error("Browser not support!");
+                    }
+               }
+               $("#login_face").click(function() {
+                    $("#modal-form").modal("hide");
+                    $("#modal_facerecognition").modal("show");
+                    start_face();
+               });
+               $("#modal_facerecognition").on("hidden.bs.modal", function() {
+                    stop();
                });
           })
      </script>

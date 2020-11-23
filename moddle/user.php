@@ -99,14 +99,14 @@ if (isset($_GET["action"])) {
                             $file_name = "/storage/avatar/for_user_$id_user-$now.$imageFileType";
                             $file_face = "/storage/face/for_user_$id_user-$now.$imageFileType";
                             if (move_uploaded_file($_FILES["avatar"]["tmp_name"], $_SERVER["DOCUMENT_ROOT"] . "/$file_face")) {
-                                chmod($_SERVER["DOCUMENT_ROOT"]."/storage",0777);
+                                chmod($_SERVER["DOCUMENT_ROOT"] . "/storage", 0777);
                                 if (mysqli_query($conn, "UPDATE table_account SET face_recognition = '$file_face' WHERE id = $id_user")) {
-                                    if ($rs["face_recognition"] != NULL && file_exists("..".$rs["face_recognition"]))
-                                        unlink("..".$rs["face_recognition"]);
+                                    if ($rs["face_recognition"] != NULL && file_exists(".." . $rs["face_recognition"]))
+                                        unlink(".." . $rs["face_recognition"]);
                                     resize_image($_SERVER["DOCUMENT_ROOT"] . "/$file_face", "100", "100", $_SERVER["DOCUMENT_ROOT"] . "/$file_name");
                                     if (mysqli_query($conn, "UPDATE table_account SET avatar = '$file_name' WHERE id = $id_user")) {
-                                        if($rs["avatar"] != "/assets/img/male.png" && file_exists("..".$rs["avatar"]))
-                                        unlink("..".$rs["avatar"]);
+                                        if ($rs["avatar"] != "/assets/img/male.png" && file_exists(".." . $rs["avatar"]))
+                                            unlink(".." . $rs["avatar"]);
                                         $data["status"] = true;
                                         $data["msg"] = "Update success.";
                                     }
@@ -155,6 +155,43 @@ if (isset($_GET["action"])) {
                 $data["status"] = false;
                 $data["msg"] = "Please login againt.";
             }
+        } else {
+            $data["status"] = false;
+            $data["msg"] = "Please enter field data.";
+        }
+    } elseif ($action == "login_with_facerecogniton") {
+        if (isset($_POST["file"])) {
+            include_once("../_connect.php");
+            include_once("functions.php");
+            $output_file = $_SERVER["DOCUMENT_ROOT"] . "/storage/face_login/face_login_" . time() . ".jpeg";
+            $file = base64_decode($_POST["file"]);
+            $file = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $file));
+            file_put_contents($output_file, $file);
+            $rs = mysqli_query($conn, "SELECT * FROM table_account WHERE face_recognition is not NULL");
+            $faces = [];
+            while ($row = mysqli_fetch_array($rs)) {
+                array_push($faces, array("path" => $_SERVER["DOCUMENT_ROOT"] . "/" . $row["face_recognition"],"id"=> $row["id"]));
+            }
+            $faces = json_encode($faces);
+            $result = json_decode(send_to_face_recognition($output_file, $faces), true);
+            if ($result["face_found_in_image"] == true) {
+                if ($result["is_picture_match"] == true) {
+                    $rs = mysqli_query($conn, "SELECT * FROM table_account WHERE id ='" . $result["who_match"] . "'");
+                    $row = mysqli_fetch_assoc($rs);
+                    $_SESSION["id"] = $row["id"];
+                    $_SESSION["email"] = $row["email"];
+                    $data["status"] = true;
+                    $data["msg"] = "Login success.";
+                    $data["position"] = $result["position_face"];
+                } else {
+                    $data["status"] = false;
+                    $data["msg"] = "Face not match.";
+                }
+            } else {
+                $data["status"] = false;
+                $data["msg"] = "No faces in picture.";
+            }
+            unlink($output_file);
         } else {
             $data["status"] = false;
             $data["msg"] = "Please enter field data.";
