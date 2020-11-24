@@ -103,7 +103,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
                         No messages here!
                     </div>
                 </div>
-                <div class="input_chat row col-12 border-top">
+                <div class="input_chat row col-12 border-top d-none">
                     <div class="col-9">
                         <div class="submit_form">
                             <input type="text" name="chat_" placeholder="Enter message..." class="form-control input_s" id="chat_message">
@@ -123,7 +123,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
         </div>
     </body>
     <?php include("footer.php"); ?>
-    <script src="/assets/js/chat.js" type="text/javascript"></script>
+    <script src="/assets/js/chat.js?ver=1" type="text/javascript"></script>
     <link rel="stylesheet" href="/assets/css/chat.css">
 
     </html>

@@ -23,7 +23,7 @@ if (isset($_GET["action"])) {
                         $rs = mysqli_query($conn, "SELECT * FROM table_account WHERE id = $room_id LIMIT 1");
                         $rs = mysqli_fetch_assoc($rs);
                         $data["name_room"] = $rs["first_name"] . " " . $rs["last_name"];
-                        $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE JSON_SEARCH(member_list,'one', '$id_user') IS NOT NULL AND JSON_SEARCH(member_list,'one', '$room_id') IS NOT NULL");
+                        $rs = mysqli_query($conn, "SELECT * FROM table_thread WHERE JSON_SEARCH(member_list,'one', '$id_user') IS NOT NULL AND JSON_SEARCH(member_list,'one', '$room_id') IS NOT NULL AND type = 'per_to_per'");
                         if (mysqli_num_rows($rs)) {
                             $rs = mysqli_fetch_assoc($rs);
                             $data["room_id"] = $rs["id"];

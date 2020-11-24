@@ -37,8 +37,12 @@ function list_thread(id) {
             if (e.status == false)
                 toastr.error(e.msg);
             e = e.data;
-            for (i = 0; i < e.length; i++) {
-                object.append(render_message_status_text(e[i]))
+            if (e.length > 0) {
+                for (i = 0; i < e.length; i++) {
+                    object.append(render_message_status_text(e[i]))
+                }
+            } else {
+                $("#list_user_tab").click();
             }
         },
         error: function(e) {
@@ -300,6 +304,7 @@ function append_render_message(e, object) {
 }
 
 function load_data_message(id, room_id, type, hash_page, scroll) {
+    $(".input_chat").removeClass("d-none");
     loader_bar(id);
     window.room_id = room_id;
     var object = $(id);
@@ -815,8 +820,8 @@ $(document).ready(function() {
             },
             function(id_modal) {
                 var fd = new FormData();
-                if($("#upload_avatar")[0].files[0] != undefined)
-                fd.append('avatar', $("#upload_avatar")[0].files[0]);
+                if ($("#upload_avatar")[0].files[0] != undefined)
+                    fd.append('avatar', $("#upload_avatar")[0].files[0]);
                 fd.append('old_password', $("#old_password").val());
                 fd.append('new_password', $("#new_password").val());
                 fd.append('re_new_password', $("#re_new_password").val());
@@ -867,7 +872,7 @@ $(function() {
         return;
     }
     // open connection
-    var connection = new WebSocket('ws://127.0.0.1:1338/?auth_key=' + auth_token);
+    var connection = new WebSocket('ws://' + window.location.host + ':1338/?auth_key=' + auth_token);
     connection.onerror = function(error) {
         //Error
     }
