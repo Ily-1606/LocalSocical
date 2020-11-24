@@ -256,6 +256,7 @@ function append_render_message(e, object) {
             if (who_el.length == 0) {
                 object.append('<div class="message row col-12 justify-content-start mt-2" id="typing_' + e.info_user.user_id + '" attr_for_user="' + e.info_user.user_id + '" attr_for_time="' + time + '"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="reaction-area"><div id="wave"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div></div>');
                 notify_typing.play();
+                object.scrollTop($('.message_list')[0].scrollHeight);
             } else {
                 who_el = object.find("#typing_" + e.info_user.user_id);
                 who_el.attr("attr_for_time", time);
@@ -300,6 +301,7 @@ function append_render_message(e, object) {
                 object.append('<div attr_for_id="' + e.info_user.id_message + '" attr_for_time="' + e.info_user.timestamp + '" class="message row col-12 justify-content-start mt-2"><div class="mr-2"><img src="' + e.info_user.avatar + '" width="40px" height="40px" class="rounded-circle"></div><div class="message_outer"><div class="message_content rounded"><div class="message_text">' + e.info_user.message_text + '</div></div><div class="text-left"><small>' + time_intel(e.info_user.timestamp) + '</small></div></div></div>');
             }
         }
+        object.scrollTop($('.message_list')[0].scrollHeight);
     }
 }
 
@@ -562,7 +564,7 @@ $(document).ready(function() {
         $(this).parents(".badged_user").remove();
     });
     last_typing = new Date().getTime();
-    $("#chat_message").on('keypress', function(e) {
+    $("#chat_message").on('keyup', function(e) {
         if (e.which == 13) {
             send_message($(this).val(), window.room_id);
             $(this).val('');
