@@ -38,15 +38,15 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
             window.auth_token = '<?php include("moddle/hash.php");
                                     echo encrypt($id . "-" . time()) ?>';
         </script>
-        <div class="row border-bottom">
+        <div class="row border-bottom" style="background: #f8f9fa">
             <div class="col-12">
-                <section class="navbar custom-navbar navbar-fixed-top col-12 bg-dark pb-1" role="navigation">
+                <section class="navbar custom-navbar navbar-fixed-top col-12 pb-1" role="navigation">
                     <div class="row align-items-center col-12">
                         <div class="col-3 text-left">
                             <img src="/assets/img/LG.png" width="100px">
                         </div>
                         <div class="col-9 h4 text-center">
-                            <span id="title_message" class="text-white"></span>
+                            <span id="title_message"></span>
                             <span id="setting" class="text-white float-right">
                                 <img src="/assets/img/cog.svg" width="30px" height="30px" />
                             </span>

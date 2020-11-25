@@ -173,3 +173,11 @@ function send_to_face_recognition($face, $faces)
     curl_close($curl);
     return $response;
 }
+function endsWith($string, $endString)
+{
+    $len = strlen($endString);
+    if ($len == 0) {
+        return true;
+    }
+    return (substr($string, -$len) === $endString);
+}

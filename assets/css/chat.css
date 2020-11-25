@@ -48,8 +48,8 @@ body {
 }
 
 .message_content {
-    background: -webkit-linear-gradient(to right, #434343, #000000);
-    background: linear-gradient(to right, #434343, #000000);
+    background: -webkit-linear-gradient(to right, #117a8b, #17a2b8);
+    background: linear-gradient(to right, #117a8b, #17a2b8);
     padding: 10px;
 }
 
@@ -89,7 +89,7 @@ body {
 }
 
 .room_active {
-    background-color: #434343;
+    background-color: #e9ecef;
 }
 
 .add_group {

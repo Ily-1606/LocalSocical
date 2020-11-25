@@ -125,7 +125,7 @@ function confirm_modal(body, callback) {
         '<div class="row">' +
         '<div class="col-md-12 col-sm-12">' +
         '<div class="tab-pane active" id="">' +
-        '<div class="submit_form text-white">' +
+        '<div class="submit_form ">' +
         body +
         '<div class="row">' +
         '<div class="col">' +
@@ -175,7 +175,7 @@ function create_modal(header, body, cancel, confirm, cancel_fn, confirm_fn, some
         '<h2>' + header + '</h2>' +
         '</div>' +
         '<div class="tab-pane active" id="">' +
-        '<div class="submit_form text-white text-left">' +
+        '<div class="submit_form  text-left">' +
         body +
         '<div class="row">' +
         (cancel == undefined ? '' : '<div class="col">' +
@@ -608,7 +608,7 @@ $(document).ready(function() {
             '<label for="add_user">Add user</label>' +
             '<input type="text" class="form-control" id="search_email" placeholder="Press enter to search">' +
             '<input type="hidden" name="list_user" value="[]" id="list_user" />' +
-            '<div class="text-white" id="show_list_user"></div>' +
+            '<div class="" id="show_list_user"></div>' +
             '</div><small class="text-muted">Leave it blank if not changed</small>' +
             '<div class="row"><div class="col-12"></div></div>', "Leave group", "Confirm",
             function(id_modal) {
@@ -763,7 +763,7 @@ $(document).ready(function() {
         create_modal("Create group", '<input type="text" class="form-control" name="name_group" id="name_group" placeholder="Group name" required>' +
             '<input type="text" class="form-control" name="email" id="search_email" placeholder="Enter email to search" required>' +
             '<input type="hidden" name="list_user" value="[]" id="list_user" />' +
-            '<div class="text-white text-left" id="show_list_user"></div>' +
+            '<div class=" text-left" id="show_list_user"></div>' +
             '<div class="row align-items-center">' +
             '<div class="col">' +
             '<input name="captcha" type="text" placeholder="Enter result" id="captcha" class="form-control">' +

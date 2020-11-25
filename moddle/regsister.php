@@ -1,7 +1,11 @@
 <?php
 session_start();
 include("../_connect.php");
-$secure_code_base = "ABC";
+include("functions.php");
+$rs = mysqli_query($conn, "SELECT * FROM table_config");
+$row = mysqli_fetch_assoc($rs);
+$secure_code_base = $row["secure_code"];
+$email_base = $row["email"];
 if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["re_password"]) && isset($_POST["Firstname"]) && isset($_POST["Lastname"]) && isset($_POST["Securecode"]) && isset($_POST["telephone"]) && isset($_POST["gender"]) && isset($_POST["captcha"])) {
     $email = mysqli_real_escape_string($conn, $_POST["email"]);
     $password = mysqli_real_escape_string($conn, $_POST["password"]);
@@ -15,7 +19,7 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["re_pass
     $data = array();
     if ($captcha == $_SESSION["captcha"]) {
         unset($_SESSION["captcha"]);
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) == false) {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) == false || endsWith($email, $email_base) == false) {
             $data["status"] = false;
             $data["msg"] = "Email invalid!";
             echo json_encode($data);

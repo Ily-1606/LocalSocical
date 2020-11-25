@@ -14,9 +14,9 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
 <body>
 
 
-     <section class="navbar custom-navbar navbar-fixed-top bg-dark" role="navigation">
+     <section class="navbar custom-navbar navbar-fixed-top" role="navigation" style="background: #f8f9fa">
           <div class="container">
-               <section class="navbar custom-navbar navbar-fixed-top col-12 bg-dark" role="navigation">
+               <section class="navbar custom-navbar navbar-fixed-top col-12" role="navigation">
                     <div class="container">
                          <div class="navbar-header">
                               <img src="/assets/img/LG.png" width="100px">
@@ -36,7 +36,7 @@ if (isset($_SESSION["id"]) && isset($_SESSION["email"])) {
      </div>
 
      <div class="col-12 text-center">
-          <img src="/assets/img/chat.gif" class="auto_reponsive">
+          <img src="/assets/img/chat.png" class="auto_reponsive">
           <img src="/assets/img/a.png" class="auto_reponsive"></p>
      </div>
      <section class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

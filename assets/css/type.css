@@ -8,7 +8,7 @@ http://www.templatemo.com/tm-509-hydro
 
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600');
 body {
-    background: black;
+    background: #ffffff;
     font-family: 'Poppins', sans-serif;
     overflow-x: hidden;
 }
@@ -346,9 +346,9 @@ section {
 .modal-dialog .modal-content {
     background: #000000;
     /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #434343, #000000);
+    background: -webkit-linear-gradient(to right, #f8f9fa, #adb5bd);
     /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #434343, #000000);
+    background: linear-gradient(to right, #f8f9fa, #adb5bd);
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     border: none;
     border-radius: 2px;
